@@ -112,13 +112,13 @@ export default function ProfileModal({
           className={`${styles.tab} ${tab === "edit" ? styles.tabActive : ""}`}
           onClick={() => setTab("edit")}
         >
-          ✏️ Edit Profile
+          Edit Profile
         </button>
         <button
           className={`${styles.tab} ${styles.tabDanger} ${tab === "danger" ? styles.tabDangerActive : ""}`}
           onClick={() => setTab("danger")}
         >
-          ⚠️ Danger Zone
+          Danger Zone
         </button>
       </div>
 
@@ -218,7 +218,11 @@ export default function ProfileModal({
 
       {tab === "danger" && (
         <div className={styles.dangerCenter}>
-          <div className={styles.dangerIcon}>⚠️</div>
+          <div className={styles.dangerIcon}>
+            <svg className={styles.iconWarning} aria-hidden="true">
+              <use href="/sprite.svg#icon-warning" />
+            </svg>
+          </div>
           <h3 className={styles.dangerTitle}>Delete Account</h3>
           <p className={styles.dangerText}>
             This will permanently delete your account and all associated data.

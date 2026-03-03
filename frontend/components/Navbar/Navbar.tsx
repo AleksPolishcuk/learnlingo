@@ -80,17 +80,8 @@ export default function Navbar({
           {!user ? (
             <>
               <button className={styles.btnLogin} onClick={onLogin}>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                  <polyline points="10 17 15 12 10 7" />
-                  <line x1="15" y1="12" x2="3" y2="12" />
+                <svg className={styles.iconLogIn} aria-hidden="true">
+                  <use href="/sprite.svg#icon-log-in-01" />
                 </svg>
                 Log in
               </button>
@@ -108,17 +99,8 @@ export default function Navbar({
                   <UserAvatar user={user} size={42} />
                 </button>
                 <button className={styles.btnLogout} onClick={onLogout}>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
+                  <svg className={styles.iconLogIn} aria-hidden="true">
+                    <use href="/sprite.svg#icon-log-in-01" />
                   </svg>
                   Logout
                 </button>
@@ -137,7 +119,10 @@ export default function Navbar({
                       setMenuOpen(false);
                     }}
                   >
-                    ✏️ Edit Profile
+                    <svg className={styles.iconEdit} aria-hidden="true">
+                      <use href="/sprite.svg#icon-pencil" />
+                    </svg>
+                    Edit Profile
                   </button>
                 </div>
               )}

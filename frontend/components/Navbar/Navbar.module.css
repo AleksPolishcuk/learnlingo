@@ -81,6 +81,11 @@
   margin-left: 16px;
 }
 
+.iconLogIn {
+  width: 20px;
+  height: 20px;
+}
+
 .btnLogin {
   display: inline-flex;
   align-items: center;
@@ -201,6 +206,11 @@
   gap: 8px;
 
   color: rgba(17, 17, 17, 0.8);
+}
+
+.iconEdit {
+  width: 20px;
+  height: 20px;
 }
 
 .dropdownItem:hover {

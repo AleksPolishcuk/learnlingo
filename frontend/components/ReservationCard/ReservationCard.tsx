@@ -115,19 +115,8 @@ export default function ReservationCard({
 
             <div className={styles.metaRow}>
               <span className={styles.metaItem}>
-                <svg
-                  className={styles.metaIcon}
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
+                <svg className={styles.iconClock} aria-hidden="true">
+                  <use href="/sprite.svg#icon-calendar" />
                 </svg>
                 {bookedDate}
               </span>
@@ -157,17 +146,8 @@ export default function ReservationCard({
 
           {timeDisplay && (
             <span className={styles.timeBadge}>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
+              <svg className={styles.iconClock} aria-hidden="true">
+                <use href="/sprite.svg#icon-Iconclock" />
               </svg>
               {timeDisplay}
             </span>
@@ -178,13 +158,13 @@ export default function ReservationCard({
               className={styles.editBtn}
               onClick={() => setEditing((p) => !p)}
             >
-              {editing ? "Close editor" : "✏️ Edit"}
+              {editing ? "Close editor" : " Edit"}
             </button>
             <button
               className={styles.cancelBtn}
               onClick={() => onCancel(b._id)}
             >
-              🗑 Cancel
+              Cancel
             </button>
           </div>
 

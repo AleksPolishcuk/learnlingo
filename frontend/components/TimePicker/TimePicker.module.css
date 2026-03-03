@@ -43,6 +43,10 @@
   display: flex;
   align-items: center;
 }
+.iconClock {
+  width: 18px;
+  height: 18px;
+}
 
 .panel {
   position: absolute;

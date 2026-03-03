@@ -149,12 +149,17 @@
   flex-wrap: wrap;
 }
 
+.iconClock {
+  width: 16px;
+  height: 16px;
+}
+
 .editBtn {
   padding: 10px 22px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text-secondary);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--text);
   font-size: 13px;
   font-weight: 700;
   font-family: var(--font-body);
@@ -163,8 +168,8 @@
     border-color 0.15s;
 }
 .editBtn:hover {
-  background: #f5f5f5;
-  border-color: var(--border-hover);
+  background: var(--accent-dark);
+  border-color: var(--border-yellow);
 }
 
 .cancelBtn {

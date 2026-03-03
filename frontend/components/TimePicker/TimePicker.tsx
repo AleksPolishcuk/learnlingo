@@ -66,18 +66,8 @@ export default function TimePicker({ value, onChange }: Props) {
       </div>
 
       <span className={styles.clockIcon}>
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
+        <svg className={styles.iconClock} aria-hidden="true">
+          <use href="/sprite.svg#icon-Iconclock" />
         </svg>
       </span>
 
