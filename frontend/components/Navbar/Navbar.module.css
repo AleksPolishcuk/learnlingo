@@ -1,0 +1,235 @@
+.navbar {
+  position: relative;
+  padding: 20px 0 0 0;
+  background: #fff;
+}
+
+.container {
+  max-width: 1184px;
+  height: 48px;
+  margin: 0 auto;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logoIcon {
+  width: 134px;
+  height: 28px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.logoText {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  color: #111;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  flex: 1;
+}
+
+.navLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  text-decoration: none;
+
+  padding: 6px 0;
+  position: relative;
+}
+
+.navLink:hover {
+  opacity: 0.85;
+}
+
+.navLinkActive {
+  font-weight: 600;
+}
+
+.navLinkActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 2px;
+  background: rgba(17, 17, 17, 0.7);
+  border-radius: 2px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.btnLogin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btnLogin:hover {
+  opacity: 0.85;
+}
+
+.btnLogin svg {
+  color: #f4c550;
+}
+
+.btnRegister {
+  padding: 14px 38px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--text);
+  color: var(--card-bg);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btnRegister:hover {
+  opacity: 0.9;
+}
+
+.userMenu {
+  position: relative;
+}
+
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnLogout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 40px;
+  padding: 0 14px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  background: transparent;
+
+  color: rgba(17, 17, 17, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnLogout:hover {
+  background: rgba(17, 17, 17, 0.04);
+  border-color: rgba(17, 17, 17, 0.22);
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+
+  background: var(--card-bg);
+  border-radius: 14px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  box-shadow: 0 16px 40px rgba(17, 17, 17, 0.12);
+
+  min-width: 210px;
+  overflow: hidden;
+  z-index: 600;
+  animation: fadeIn 0.15s ease both;
+}
+
+.dropdownHeader {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.dropdownName {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.dropdownRole {
+  font-size: 11px;
+  color: rgba(17, 17, 17, 0.55);
+  text-transform: capitalize;
+  margin-top: 2px;
+}
+
+.dropdownItem {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+
+  font-size: 14px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: rgba(17, 17, 17, 0.8);
+}
+
+.dropdownItem:hover {
+  background: rgba(17, 17, 17, 0.04);
+  color: var(--text);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    height: 56px;
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .btnRegister {
+    height: 38px;
+    padding: 0 16px;
+  }
+}

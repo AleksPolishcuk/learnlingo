@@ -1,0 +1,29 @@
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 2000;
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.3s ease both;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+}
+
+.success {
+  background: #eafaf1;
+  border: 1.5px solid rgba(56, 205, 62, 0.2);
+  color: #1a7a3a;
+}
+
+.error {
+  background: var(--red-light);
+  border: 1.5px solid rgba(229, 62, 62, 0.2);
+  color: #c53030;
+}

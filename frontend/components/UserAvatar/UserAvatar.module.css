@@ -1,0 +1,15 @@
+.avatar {
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f4c550, #e8a820);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: #1a1a1a;
+  font-family: var(--font-body);
+  flex-shrink: 0;
+  border: 2px solid rgba(244, 197, 80, 0.3);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.avatar:hover { opacity: 0.9; }

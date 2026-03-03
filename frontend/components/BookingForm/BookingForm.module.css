@@ -1,0 +1,176 @@
+.title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.teacherCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+
+.teacherAvatarWrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--accent);
+  flex-shrink: 0;
+}
+
+.teacherAvatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.teacherAvatarFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-light);
+  font-size: 18px;
+  font-weight: 800;
+  color: #7a5800;
+}
+
+.teacherLabel {
+  font-size: 10px;
+  color: #aaa;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.teacherName {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.reasonTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 14px;
+  font-family: var(--font-body);
+}
+
+.reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.reasonLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: transparent;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.radioActive {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: #fafafa;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--accent);
+  background: #fffdf5;
+}
+.inputError {
+  border-color: var(--red) !important;
+}
+
+.error {
+  font-size: 11px;
+  color: var(--red);
+  margin-top: 4px;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--accent);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: var(--font-body);
+  margin-top: 8px;
+  box-shadow: var(--shadow-accent);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(244, 197, 80, 0.5);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
