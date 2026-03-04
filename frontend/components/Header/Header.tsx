@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User } from "@/types";
 import UserAvatar from "@/components/UserAvatar/UserAvatar";
-import styles from "./Navbar.module.css";
+import styles from "./Header.module.css";
 import Image from "next/image";
 interface NavbarProps {
   user: User | null;

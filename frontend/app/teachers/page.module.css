@@ -29,8 +29,14 @@
   transition: transform 0.15s;
 }
 
-.loadMoreBtn:hover { transform: translateY(-1px); }
-.loadMoreBtn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.loadMoreBtn:hover {
+  transform: translateY(-1px);
+}
+.loadMoreBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .empty {
   text-align: center;
@@ -38,7 +44,12 @@
   color: #bbb;
 }
 
-.emptyIcon { font-size: 52px; margin-bottom: 14px; }
+.emptyIcon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 14px;
+  display: block;
+}
 
 .emptyTitle {
   font-size: 18px;
@@ -47,20 +58,8 @@
   font-family: var(--font-body);
 }
 
-.skeleton {
-  background: var(--card-bg);
-  border-radius: var(--radius-xl);
-  padding: 28px 32px;
-  height: 180px;
-  border: 1px solid var(--border);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
-}
-
 @media (max-width: 600px) {
-  .page { padding: 24px 16px; }
+  .page {
+    padding: 24px 16px;
+  }
 }

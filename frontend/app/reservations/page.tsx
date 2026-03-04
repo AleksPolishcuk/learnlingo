@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Booking } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
 import ReservationCard from "@/components/ReservationCard/ReservationCard";
+import SkeletonCard from "@/components/SkeletonCard/SkeletonCard";
 import api from "@/lib/api";
 import styles from "./page.module.css";
 
@@ -20,6 +21,7 @@ export default function ReservationsPage() {
 
   useEffect(() => {
     if (!isAuth) return;
+
     api
       .get("/bookings")
       .then(({ data }) => setBookings(data.bookings))
@@ -33,7 +35,7 @@ export default function ReservationsPage() {
       setBookings((prev) => prev.filter((b) => b._id !== id));
       showToast("Booking cancelled.");
     } catch (err: any) {
-      showToast(err.message, "error");
+      showToast(err?.message || "Failed to cancel booking", "error");
     }
   };
 
@@ -51,10 +53,23 @@ export default function ReservationsPage() {
       <h1 className={styles.heading}>My Reservations</h1>
 
       {fetching ? (
-        <p className={styles.loading}>Loading…</p>
+        <div className={styles.list}>
+          {[...Array(4)].map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       ) : bookings.length === 0 ? (
         <div className={styles.empty}>
-          <div className={styles.emptyIcon}>📅</div>
+          <svg
+            className={styles.emptyIcon}
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <use
+              href="/sprite.svg#icon-calendar-svg"
+              xlinkHref="/sprite.svg#icon-calendar-svg"
+            />
+          </svg>
           <p className={styles.emptyTitle}>No bookings yet</p>
           <p className={styles.emptyText}>
             Book a trial lesson with a teacher to see your reservations here.

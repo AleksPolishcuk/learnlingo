@@ -1,6 +1,6 @@
 "use client";
 import { useAuthContext } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar/Navbar";
+import Navbar from "@/components/Header/Header";
 import Modal from "@/components/Modal/Modal";
 import LoginForm from "@/components/AuthForms/LoginForm";
 import RegisterForm from "@/components/AuthForms/RegisterForm";

@@ -17,13 +17,34 @@
 }
 
 .success {
-  background: #eafaf1;
-  border: 1.5px solid rgba(56, 205, 62, 0.2);
-  color: #1a7a3a;
+  background: var(--gold-light);
+  border: 1.5px solid var(--accent);
+  color: var(--text);
 }
 
 .error {
   background: var(--red-light);
   border: 1.5px solid rgba(229, 62, 62, 0.2);
   color: #c53030;
+}
+
+.success .icon {
+  stroke: var(--accent);
+  fill: var(--accent);
+}
+
+.error .icon {
+  stroke: #c53030;
+  fill: #c53030;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.message {
+  display: inline-block;
+  line-height: 1.35;
 }

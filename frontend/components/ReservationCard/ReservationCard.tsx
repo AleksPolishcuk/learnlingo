@@ -140,7 +140,7 @@ export default function ReservationCard({
           <p className={styles.infoRow}>
             <span className={styles.infoLabel}>Contact: </span>
             <span className={styles.infoValue}>
-              {b.fullName} · {b.email} · {b.phone}
+              Name: {b.fullName} · Email: {b.email} · Phone: {b.phone}
             </span>
           </p>
 
