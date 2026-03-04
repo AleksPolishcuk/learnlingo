@@ -14,7 +14,7 @@
 .container {
   background: var(--card-bg);
   border-radius: var(--radius-xl);
-  padding: 40px;
+  padding: 64px;
   width: 100%;
   max-width: 480px;
   max-height: 90vh;
@@ -30,21 +30,32 @@
 
 .closeBtn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 34px;
-  height: 34px;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: none;
   background: #f4f4f4;
-  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #666;
-  transition: background 0.15s;
   flex-shrink: 0;
-  line-height: 1;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
-.closeBtn:hover { background: #e8e8e8; }
+.closeBtn:hover {
+  background: #e8e8e8;
+  color: var(--text);
+}
+
+.iconX {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+}

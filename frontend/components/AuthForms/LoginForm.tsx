@@ -5,13 +5,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema } from '@/lib/validation';
 import api from '@/lib/api';
 import { User } from '@/types';
+import Input from '@/components/Input/Input';
 import styles from './AuthForms.module.css';
 
 interface FormData { email: string; password: string; }
-interface Props { onSuccess: (token: string, user: User) => void; onSwitch: () => void; }
+interface Props    { onSuccess: (token: string, user: User) => void; onSwitch: () => void; }
 
 export default function LoginForm({ onSuccess, onSwitch }: Props) {
-  const [showPass, setShowPass] = useState(false);
   const [serverError, setServerError] = useState('');
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -31,29 +31,29 @@ export default function LoginForm({ onSuccess, onSwitch }: Props) {
   return (
     <div>
       <h2 className={styles.title}>Log In</h2>
-      <p className={styles.subtitle}>Welcome back! Enter your credentials to continue.</p>
+      <p className={styles.subtitle}>
+        Welcome back! Please enter your credentials to access your account and
+        continue your search for a teacher.
+      </p>
 
-      {serverError && <p className={styles.error} style={{ marginBottom: 14 }}>{serverError}</p>}
+      {serverError && <p className={styles.serverError}>{serverError}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className={styles.field}>
-          <label className={styles.label}>Email</label>
-          <input {...register('email')} type="email"
-            className={`${styles.input} ${errors.email ? styles.inputError : ''}`} placeholder="your@email.com" />
-          {errors.email && <p className={styles.error}>{errors.email.message}</p>}
-        </div>
+        <Input
+          {...register('email')}
+          label="Email"
+          type="email"
+          placeholder="your@email.com"
+          error={errors.email?.message}
+        />
 
-        <div className={styles.field}>
-          <label className={styles.label}>Password</label>
-          <div className={styles.inputWrap}>
-            <input {...register('password')} type={showPass ? 'text' : 'password'}
-              className={`${styles.input} ${errors.password ? styles.inputError : ''}`} placeholder="Password" />
-            <button type="button" className={styles.eyeBtn} onClick={() => setShowPass((p) => !p)}>
-              {showPass ? '🙈' : '👁'}
-            </button>
-          </div>
-          {errors.password && <p className={styles.error}>{errors.password.message}</p>}
-        </div>
+        <Input
+          {...register('password')}
+          label="Password"
+          isPassword
+          placeholder="Password"
+          error={errors.password?.message}
+        />
 
         <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
           {isSubmitting ? 'Logging in…' : 'Log In'}
@@ -62,7 +62,9 @@ export default function LoginForm({ onSuccess, onSwitch }: Props) {
 
       <p className={styles.switchText}>
         Don&apos;t have an account?{' '}
-        <button type="button" className={styles.switchBtn} onClick={onSwitch}>Register</button>
+        <button type="button" className={styles.switchBtn} onClick={onSwitch}>
+          Register
+        </button>
       </p>
     </div>
   );

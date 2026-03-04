@@ -1,6 +1,6 @@
-'use client';
-import { useEffect } from 'react';
-import styles from './Modal.module.css';
+"use client";
+import { useEffect } from "react";
+import styles from "./Modal.module.css";
 
 interface ModalProps {
   open: boolean;
@@ -12,12 +12,14 @@ interface ModalProps {
 export default function Modal({ open, onClose, children, wide }: ModalProps) {
   useEffect(() => {
     if (!open) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', handler);
-    document.body.style.overflow = 'hidden';
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener('keydown', handler);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
     };
   }, [open, onClose]);
 
@@ -26,10 +28,18 @@ export default function Modal({ open, onClose, children, wide }: ModalProps) {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div
-        className={`${styles.container} ${wide ? styles.containerWide : ''}`}
+        className={`${styles.container} ${wide ? styles.containerWide : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
+        <button
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label="Close modal"
+        >
+          <svg className={styles.iconX} aria-hidden="true">
+            <use href="/sprite.svg#icon-x" />
+          </svg>
+        </button>
         {children}
       </div>
     </div>

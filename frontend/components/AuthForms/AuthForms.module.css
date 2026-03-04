@@ -1,19 +1,30 @@
 .title {
   font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 40px;
+  font-weight: 700;
   color: var(--text);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 
 .subtitle {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-muted);
-  margin: 0 0 28px;
+  margin: 0 0 40px;
   line-height: 1.5;
 }
 
-.field { margin-bottom: 16px; }
+.serverError {
+  font-size: 13px;
+  color: var(--red);
+  background: var(--red-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
 
 .label {
   display: block;
@@ -23,42 +34,6 @@
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin-bottom: 6px;
-}
-
-.inputWrap { position: relative; }
-
-.input {
-  width: 100%;
-  padding: 13px 16px;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border);
-  font-size: 14px;
-  font-family: var(--font-body);
-  color: var(--text);
-  background: #fafafa;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
-  box-sizing: border-box;
-}
-
-.input:focus {
-  border-color: var(--accent);
-  background: #fffdf5;
-}
-
-.inputError { border-color: var(--red) !important; }
-
-.eyeBtn {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #aaa;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
 }
 
 .error {
@@ -74,7 +49,11 @@
 }
 
 .roleBtn {
-  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 0;
   border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 700;
@@ -82,13 +61,29 @@
   border: 1.5px solid var(--border);
   background: #fafafa;
   color: var(--text-muted);
-  transition: all 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    color 0.2s;
 }
 
 .roleBtnActive {
   border-color: var(--accent);
   background: var(--gold-light);
   color: #7a5800;
+}
+
+.roleBtn:hover {
+  background-color: var(--accent-light);
+}
+
+.roleIcon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  fill: currentColor;
+  stroke: currentColor;
+  flex-shrink: 0;
 }
 
 .langPicker {
@@ -106,7 +101,10 @@
   border: 1.5px solid var(--border);
   background: var(--card-bg);
   color: var(--text-muted);
-  transition: all 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s;
 }
 
 .langBtnActive {
@@ -117,17 +115,19 @@
 
 .submitBtn {
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   border-radius: var(--radius-md);
   border: none;
   background: var(--accent);
   color: var(--text);
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 700;
   font-family: var(--font-body);
   margin-top: 8px;
   box-shadow: var(--shadow-accent);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
 }
 
 .submitBtn:hover {
@@ -135,10 +135,16 @@
   box-shadow: 0 6px 22px rgba(244, 197, 80, 0.5);
 }
 
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .switchText {
   text-align: center;
   margin-top: 16px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
 }
 
@@ -147,6 +153,8 @@
   border: none;
   color: var(--accent-dark);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   font-family: var(--font-body);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
