@@ -1,0 +1,38 @@
+
+apis:
+  main:
+    root: docs/openapi/openapi.yaml
+
+rules:
+  operation-summary:            error  
+  operation-operationId:        error   
+  operation-operationId-unique: error
+  operation-description:        warn   
+
+  security-defined:             error
+
+  no-invalid-schema-examples:   error
+  no-unused-components:         warn
+
+ 
+  path-segment-plural:          off
+
+  tag-description:              warn
+
+theme:
+  openapi:
+    showConsole: true
+    expandResponses: "200,201"
+    nativeScrollbars: false
+    theme:
+      colors:
+        primary:
+          main: "#F4C550"
+      typography:
+        fontFamily: "'Manrope', sans-serif"
+        headings:
+          fontFamily: "'Playfair Display', serif"
+      sidebar:
+        backgroundColor: "#1a1a1a"
+        textColor: "#ffffff"
+        activeTextColor: "#F4C550"

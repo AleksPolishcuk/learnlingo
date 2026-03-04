@@ -1,0 +1,90 @@
+/api/teachers:
+  get:
+    summary: List teachers with optional filters
+    description: |
+      Returns a paginated list of teachers. All three filter parameters are optional and combinable.
+
+      | Query param | Type | Effect |
+      |---|---|---|
+      | `language` | string | Only teachers who teach that language |
+      | `level` | string | Only teachers who cover that proficiency level |
+      | `price` | number | Only teachers with `price_per_hour` ≤ this value |
+    operationId: getTeachers
+    tags: [Teachers]
+    security: []
+    parameters:
+      - $ref: '../components/parameters/pagination.yaml#/PageParam'
+      - $ref: '../components/parameters/pagination.yaml#/LimitParam'
+      - in: query
+        name: language
+        schema:
+          type: string
+        example: French
+        description: Filter by language taught
+      - in: query
+        name: level
+        schema:
+          type: string
+          enum:
+            - A1 Beginner
+            - A2 Elementary
+            - B1 Intermediate
+            - B2 Upper-Intermediate
+            - C1 Advanced
+            - C2 Proficient
+        description: Filter by proficiency level
+      - in: query
+        name: price
+        schema:
+          type: number
+        example: 30
+        description: Maximum price per hour (inclusive)
+    responses:
+      '200':
+        description: Paginated and filtered list of teachers
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/teacher.yaml#/TeachersListResponse'
+            example:
+              teachers:
+                - _id: 6657a1f2c3d4e5f6a7b8c9d0
+                  name: Jane
+                  surname: Smith
+                  languages: [French, German]
+                  levels: [A1 Beginner, B1 Intermediate]
+                  rating: 4.8
+                  price_per_hour: 30
+                  lessons_done: 1098
+                  avatar_url: https://ftp.goit.study/img/avatars/2.jpg
+              total: 30
+              page: 1
+              pages: 8
+              hasMore: true
+
+/api/teachers/{id}:
+  get:
+    summary: Get a single teacher by ID
+    description: Returns the full teacher profile including all reviews, experience text and conditions.
+    operationId: getTeacherById
+    tags: [Teachers]
+    security: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+        description: MongoDB ObjectId of the teacher
+    responses:
+      '200':
+        description: Full teacher object including reviews and experience
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                teacher:
+                  $ref: '../components/schemas/teacher.yaml#/Teacher'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'

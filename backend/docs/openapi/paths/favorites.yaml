@@ -1,0 +1,68 @@
+/api/favorites:
+  get:
+    summary: Get the current user's favourite teachers
+    description: Returns fully populated teacher objects for every ID stored in the authenticated user's `favorites` array.
+    operationId: getFavorites
+    tags: [Favorites]
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of favourite teachers (fully populated)
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/teacher.yaml#/FavoritesResponse'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+/api/favorites/{teacherId}:
+  post:
+    summary: Add a teacher to favourites
+    description: Pushes the given teacher's ObjectId into the authenticated user's `favorites` array (idempotent — adding the same teacher twice has no effect). Returns the updated populated list.
+    operationId: addFavorite
+    tags: [Favorites]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: teacherId
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+        description: MongoDB ObjectId of the teacher to add
+    responses:
+      '200':
+        description: Updated favourites list
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/teacher.yaml#/FavoritesResponse'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'
+
+  delete:
+    summary: Remove a teacher from favourites
+    description: Pulls the given teacher's ObjectId from the authenticated user's `favorites` array and returns the updated populated list.
+    operationId: removeFavorite
+    tags: [Favorites]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: teacherId
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+        description: MongoDB ObjectId of the teacher to remove
+    responses:
+      '200':
+        description: Updated favourites list
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/teacher.yaml#/FavoritesResponse'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'

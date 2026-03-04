@@ -103,16 +103,17 @@
 }
 
 .stats {
-  min-width: 1312px;
-  margin: 0;
-  padding: 0 64px 32px;
+  max-width: 1312px;
+  margin: 0 auto 32px;
+  /* padding: 0 0 32px; */
 }
 
 .statsInner {
+  min-width: 1312px;
   border: 1.5px dashed var(--accent);
   border-radius: 30px;
+  margin: 0 auto;
   padding: 40px 56px;
-
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;

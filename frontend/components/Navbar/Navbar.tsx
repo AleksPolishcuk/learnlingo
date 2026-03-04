@@ -21,7 +21,7 @@ const NAV_LINKS = [
 
 const PRIVATE_LINKS = [
   { href: "/favorites", label: "Favorites" },
-  { href: "/reservations", label: "My Reservations" },
+  { href: "/reservations", label: "Reservations" },
 ];
 
 export default function Navbar({

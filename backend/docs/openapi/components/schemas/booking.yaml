@@ -1,0 +1,127 @@
+BookingTeacherRef:
+  description: Minimal teacher info populated inside a booking response
+  type: object
+  properties:
+    _id:
+      $ref: './common.yaml#/ObjectId'
+    name:
+      type: string
+      example: Jane
+    surname:
+      type: string
+      example: Smith
+    avatar_url:
+      type: string
+      format: uri
+      example: https://ftp.goit.study/img/avatars/2.jpg
+    languages:
+      type: array
+      items:
+        type: string
+      example: [French, German]
+
+Booking:
+  type: object
+  properties:
+    _id:
+      $ref: './common.yaml#/ObjectId'
+    user:
+      $ref: './common.yaml#/ObjectId'
+    teacher:
+      $ref: '#/BookingTeacherRef'
+    reason:
+      type: string
+      enum:
+        - Career and business
+        - Lesson for kids
+        - Living abroad
+        - Exams and coursework
+        - Culture, travel or hobby
+      example: Career and business
+    fullName:
+      type: string
+      example: Alice Johnson
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    phone:
+      type: string
+      example: '+1 234 567 8900'
+    status:
+      type: string
+      enum: [active, cancelled]
+      example: active
+    scheduledAt:
+      type: string
+      format: date-time
+      nullable: true
+      example: '2025-09-15T09:30:00.000Z'
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+CreateBookingRequest:
+  type: object
+  required: [teacherId, reason, fullName, email, phone]
+  properties:
+    teacherId:
+      $ref: './common.yaml#/ObjectId'
+    reason:
+      type: string
+      enum:
+        - Career and business
+        - Lesson for kids
+        - Living abroad
+        - Exams and coursework
+        - Culture, travel or hobby
+    fullName:
+      type: string
+      example: Alice Johnson
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    phone:
+      type: string
+      example: '+1 234 567 8900'
+    scheduledAt:
+      type: string
+      format: date-time
+      nullable: true
+      example: '2025-09-15T09:30:00.000Z'
+
+UpdateBookingRequest:
+  type: object
+  properties:
+    reason:
+      type: string
+      enum:
+        - Career and business
+        - Lesson for kids
+        - Living abroad
+        - Exams and coursework
+        - Culture, travel or hobby
+    fullName:
+      type: string
+    email:
+      type: string
+      format: email
+    phone:
+      type: string
+    scheduledAt:
+      type: string
+      format: date-time
+      nullable: true
+      example: '2025-09-15T10:00:00.000Z'
+
+BookingsListResponse:
+  type: object
+  properties:
+    bookings:
+      type: array
+      items:
+        $ref: '#/Booking'

@@ -1,0 +1,12 @@
+Error:
+  type: object
+  properties:
+    message:
+      type: string
+      example: Something went wrong
+  required: [message]
+
+ObjectId:
+  type: string
+  pattern: '^[a-f\d]{24}$'
+  example: 6657a1f2c3d4e5f6a7b8c9d0

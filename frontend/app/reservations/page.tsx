@@ -14,12 +14,10 @@ export default function ReservationsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [fetching, setFetching] = useState(true);
 
-  /* redirect if not logged in */
   useEffect(() => {
     if (!loading && !isAuth) router.replace("/teachers");
   }, [loading, isAuth, router]);
 
-  /* load bookings */
   useEffect(() => {
     if (!isAuth) return;
     api

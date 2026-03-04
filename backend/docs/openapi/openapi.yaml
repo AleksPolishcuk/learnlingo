@@ -1,0 +1,168 @@
+openapi: 3.0.3
+
+# ──────────────────────────────────────────────────────────────────────────────
+# LearnLingo — OpenAPI 3.0 specification
+# Entry point — all schemas and paths live in their own files under:
+#   components/schemas/   ← data models
+#   components/responses/ ← reusable HTTP responses
+#   components/parameters/← reusable query / path params
+#   paths/                ← route definitions
+# ──────────────────────────────────────────────────────────────────────────────
+
+info:
+  title: LearnLingo API
+  version: 1.0.0
+  description: |
+    REST API for the **LearnLingo** language-tutoring platform.
+
+    ## Authentication
+    Most endpoints require a **Bearer JWT** token.
+    Obtain one via `POST /api/auth/register` or `POST /api/auth/login`, then
+    supply it on every protected request:
+
+    ```
+    Authorization: Bearer <token>
+    ```
+
+    ## Error shape
+    All error responses share the same envelope:
+    ```json
+    { "message": "Human-readable description" }
+    ```
+
+  contact:
+    name: LearnLingo Team
+    email: support@learnlingo.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: Registration, login and current-user endpoints
+  - name: Users
+    description: User profile management (self-service and admin)
+  - name: Teachers
+    description: Browse and filter language teachers (public)
+  - name: Favorites
+    description: Save and manage favourite teachers
+  - name: Bookings
+    description: Trial-lesson reservations — create, edit and cancel
+
+# ── Security scheme ───────────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT issued by `POST /api/auth/login`.
+        Pass in the `Authorization` header:
+        `Authorization: Bearer <token>`
+
+  # ── schemas ─────────────────────────────────────────────────────────────────
+  schemas:
+    # common primitives
+    Error:
+      $ref: './components/schemas/common.yaml#/Error'
+    ObjectId:
+      $ref: './components/schemas/common.yaml#/ObjectId'
+
+    # user / auth
+    User:
+      $ref: './components/schemas/user.yaml#/User'
+    RegisterRequest:
+      $ref: './components/schemas/user.yaml#/RegisterRequest'
+    LoginRequest:
+      $ref: './components/schemas/user.yaml#/LoginRequest'
+    AuthResponse:
+      $ref: './components/schemas/user.yaml#/AuthResponse'
+    UpdateUserRequest:
+      $ref: './components/schemas/user.yaml#/UpdateUserRequest'
+    UsersListResponse:
+      $ref: './components/schemas/user.yaml#/UsersListResponse'
+
+    # teacher
+    Review:
+      $ref: './components/schemas/teacher.yaml#/Review'
+    Teacher:
+      $ref: './components/schemas/teacher.yaml#/Teacher'
+    TeachersListResponse:
+      $ref: './components/schemas/teacher.yaml#/TeachersListResponse'
+    FavoritesResponse:
+      $ref: './components/schemas/teacher.yaml#/FavoritesResponse'
+
+    # booking
+    BookingTeacherRef:
+      $ref: './components/schemas/booking.yaml#/BookingTeacherRef'
+    Booking:
+      $ref: './components/schemas/booking.yaml#/Booking'
+    CreateBookingRequest:
+      $ref: './components/schemas/booking.yaml#/CreateBookingRequest'
+    UpdateBookingRequest:
+      $ref: './components/schemas/booking.yaml#/UpdateBookingRequest'
+    BookingsListResponse:
+      $ref: './components/schemas/booking.yaml#/BookingsListResponse'
+
+  # ── reusable responses ────────────────────────────────────────────────────
+  responses:
+    Unauthorized:
+      $ref: './components/responses/responses.yaml#/Unauthorized'
+    NotFound:
+      $ref: './components/responses/responses.yaml#/NotFound'
+    BadRequest:
+      $ref: './components/responses/responses.yaml#/BadRequest'
+
+  # ── reusable parameters ───────────────────────────────────────────────────
+  parameters:
+    PageParam:
+      $ref: './components/parameters/pagination.yaml#/PageParam'
+    LimitParam:
+      $ref: './components/parameters/pagination.yaml#/LimitParam'
+
+# ── paths (each tag in its own file) ─────────────────────────────────────────
+paths:
+  # health
+  /api/health:
+    $ref: './paths/auth.yaml#/~1api~1health'
+
+  # auth
+  /api/auth/register:
+    $ref: './paths/auth.yaml#/~1api~1auth~1register'
+  /api/auth/login:
+    $ref: './paths/auth.yaml#/~1api~1auth~1login'
+  /api/auth/me:
+    $ref: './paths/auth.yaml#/~1api~1auth~1me'
+  /api/auth/logout:
+    $ref: './paths/auth.yaml#/~1api~1auth~1logout'
+
+  # users
+  /api/users:
+    $ref: './paths/users.yaml#/~1api~1users'
+  /api/users/me:
+    $ref: './paths/users.yaml#/~1api~1users~1me'
+  /api/users/{id}:
+    $ref: './paths/users.yaml#/~1api~1users~1{id}'
+
+  # teachers
+  /api/teachers:
+    $ref: './paths/teachers.yaml#/~1api~1teachers'
+  /api/teachers/{id}:
+    $ref: './paths/teachers.yaml#/~1api~1teachers~1{id}'
+
+  # favorites
+  /api/favorites:
+    $ref: './paths/favorites.yaml#/~1api~1favorites'
+  /api/favorites/{teacherId}:
+    $ref: './paths/favorites.yaml#/~1api~1favorites~1{teacherId}'
+
+  # bookings
+  /api/bookings:
+    $ref: './paths/bookings.yaml#/~1api~1bookings'
+  /api/bookings/{id}:
+    $ref: './paths/bookings.yaml#/~1api~1bookings~1{id}'

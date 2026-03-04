@@ -1,0 +1,140 @@
+/api/health:
+  get:
+    summary: Health check
+    description: Returns `{ status: "ok" }` when the server is running. Useful for uptime monitoring.
+    operationId: healthCheck
+    tags: [Auth]
+    security: []
+    responses:
+      '200':
+        description: Server is running
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+
+/api/auth/register:
+  post:
+    summary: Register a new user
+    description: |
+      Creates a new account and returns a signed JWT alongside the user object.
+
+      - Set `role: "client"` for learners (default).
+      - Set `role: "business"` for teachers; also supply `languages` array.
+    operationId: register
+    tags: [Auth]
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/user.yaml#/RegisterRequest'
+          examples:
+            client:
+              summary: Client account
+              value:
+                name: Alice
+                email: alice@example.com
+                password: secret123
+                role: client
+            business:
+              summary: Business (teacher) account
+              value:
+                name: Jane
+                email: jane@example.com
+                password: secret123
+                role: business
+                languages: [French, German]
+    responses:
+      '201':
+        description: User created — returns JWT + user object
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/user.yaml#/AuthResponse'
+      '400':
+        $ref: '../components/responses/responses.yaml#/BadRequest'
+
+/api/auth/login:
+  post:
+    summary: Login with email and password
+    description: |
+      Validates credentials and returns a signed JWT valid for 7 days.
+      Store the token on the client and send it as `Authorization: Bearer <token>` on every protected request.
+    operationId: login
+    tags: [Auth]
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/user.yaml#/LoginRequest'
+          example:
+            email: alice@example.com
+            password: secret123
+    responses:
+      '200':
+        description: Login successful — returns JWT + user object
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/user.yaml#/AuthResponse'
+      '401':
+        description: Invalid credentials
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/common.yaml#/Error'
+            example:
+              message: Invalid email or password
+
+/api/auth/me:
+  get:
+    summary: Get the currently authenticated user
+    description: Returns the full user object for the bearer token owner, with the `favorites` array populated.
+    operationId: getMe
+    tags: [Auth]
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: Current user object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  $ref: '../components/schemas/user.yaml#/User'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+/api/auth/logout:
+  post:
+    summary: Logout
+    description: |
+      This API is **stateless** (JWT-based). Calling logout does not invalidate the token
+      server-side; the client is responsible for discarding it from storage.
+    operationId: logout
+    tags: [Auth]
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: Logged out successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Logged out successfully
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'

@@ -1,0 +1,26 @@
+Unauthorized:
+  description: Missing or invalid JWT token
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      example:
+        message: Not authorized, no token
+
+NotFound:
+  description: Resource not found
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      example:
+        message: Resource not found
+
+BadRequest:
+  description: Validation error or missing required fields
+  content:
+    application/json:
+      schema:
+        $ref: '../schemas/common.yaml#/Error'
+      example:
+        message: All fields are required

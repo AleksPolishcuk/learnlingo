@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "seed": "node src/scripts/seed.js"
+    "seed": "node src/scripts/seed.js",
+    "docs:lint": "redocly lint docs/openapi/openapi.yaml",
+    "docs:build": "redocly build-docs docs/openapi/openapi.yaml --output docs/index.html",
+    "docs:preview": "redocly preview-docs docs/openapi/openapi.yaml"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -17,6 +20,7 @@
     "mongoose": "^8.4.0"
   },
   "devDependencies": {
+    "@redocly/cli": "^1.18.1",
     "nodemon": "^3.1.3"
   }
 }

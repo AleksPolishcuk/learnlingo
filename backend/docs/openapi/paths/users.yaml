@@ -1,0 +1,187 @@
+/api/users:
+  get:
+    summary: List all users
+    description: Returns a paginated list of all users. Supports filtering by `role` and full-text search by name or email.
+    operationId: getAllUsers
+    tags: [Users]
+    security:
+      - bearerAuth: []
+    parameters:
+      - $ref: '../components/parameters/pagination.yaml#/PageParam'
+      - $ref: '../components/parameters/pagination.yaml#/LimitParam'
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum: [client, business]
+        description: Filter by user role
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search by name or email (case-insensitive)
+    responses:
+      '200':
+        description: Paginated list of users
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/user.yaml#/UsersListResponse'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+/api/users/me:
+  put:
+    summary: Update the current user's profile
+    description: |
+      Partially updates the authenticated user's own profile.
+      - **Clients** can update `name`, `email`, `lesson_info`, `conditions`, `description`.
+      - **Business** users can also update `languages`.
+    operationId: updateMe
+    tags: [Users]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/user.yaml#/UpdateUserRequest'
+          examples:
+            client:
+              summary: Update client fields
+              value:
+                name: Alice Updated
+                lesson_info: Looking for C1 classes
+                description: I travel to France frequently
+            business:
+              summary: Update business fields
+              value:
+                name: Jane Updated
+                languages: [French, German, Spanish]
+    responses:
+      '200':
+        description: Updated user object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  $ref: '../components/schemas/user.yaml#/User'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+  delete:
+    summary: Delete the current user's account
+    description: Permanently deletes the authenticated user's account, including all associated bookings and favorites. **This action cannot be undone.**
+    operationId: deleteMe
+    tags: [Users]
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: Account deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Account deleted successfully
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+/api/users/{id}:
+  get:
+    summary: Get a user by ID
+    description: Returns a single user object by their MongoDB ObjectId.
+    operationId: getUserById
+    tags: [Users]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+        description: MongoDB ObjectId of the target user
+    responses:
+      '200':
+        description: User object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  $ref: '../components/schemas/user.yaml#/User'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'
+
+  put:
+    summary: Update a user by ID
+    description: Updates any user's profile fields by their ID. Intended for admin use.
+    operationId: updateUser
+    tags: [Users]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/user.yaml#/UpdateUserRequest'
+    responses:
+      '200':
+        description: Updated user object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  $ref: '../components/schemas/user.yaml#/User'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'
+
+  delete:
+    summary: Delete a user by ID
+    description: Permanently deletes a user account by their ID. Intended for admin use.
+    operationId: deleteUser
+    tags: [Users]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+    responses:
+      '200':
+        description: User deleted successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: User deleted successfully
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'

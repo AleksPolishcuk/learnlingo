@@ -1,0 +1,127 @@
+User:
+  type: object
+  properties:
+    _id:
+      $ref: './common.yaml#/ObjectId'
+    name:
+      type: string
+      example: Alice
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    role:
+      type: string
+      enum: [client, business]
+      example: client
+    languages:
+      type: array
+      items:
+        type: string
+      example: [English]
+    lesson_info:
+      type: string
+      example: Looking for conversational English classes
+    conditions:
+      type: string
+      example: Evenings only
+    description:
+      type: string
+      example: Software engineer improving my Spanish
+    favorites:
+      type: array
+      items:
+        $ref: './common.yaml#/ObjectId'
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+RegisterRequest:
+  type: object
+  required: [name, email, password]
+  properties:
+    name:
+      type: string
+      minLength: 2
+      example: Alice
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    password:
+      type: string
+      format: password
+      minLength: 6
+      example: secret123
+    role:
+      type: string
+      enum: [client, business]
+      default: client
+    languages:
+      type: array
+      items:
+        type: string
+      example: [English, French]
+      description: Required when **role** is `business`
+
+LoginRequest:
+  type: object
+  required: [email, password]
+  properties:
+    email:
+      type: string
+      format: email
+      example: alice@example.com
+    password:
+      type: string
+      format: password
+      example: secret123
+
+AuthResponse:
+  type: object
+  properties:
+    token:
+      type: string
+      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    user:
+      $ref: '#/User'
+
+UpdateUserRequest:
+  type: object
+  properties:
+    name:
+      type: string
+      minLength: 2
+    email:
+      type: string
+      format: email
+    languages:
+      type: array
+      items:
+        type: string
+    lesson_info:
+      type: string
+    conditions:
+      type: string
+    description:
+      type: string
+
+UsersListResponse:
+  type: object
+  properties:
+    users:
+      type: array
+      items:
+        $ref: '#/User'
+    total:
+      type: integer
+      example: 42
+    page:
+      type: integer
+      example: 1
+    pages:
+      type: integer
+      example: 3

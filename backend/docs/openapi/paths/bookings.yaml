@@ -1,0 +1,157 @@
+/api/bookings:
+  get:
+    summary: Get the current user's bookings
+    description: Returns all bookings owned by the authenticated user, sorted newest-first. Each booking includes a populated `teacher` sub-object.
+    operationId: getBookings
+    tags: [Bookings]
+    security:
+      - bearerAuth: []
+    responses:
+      '200':
+        description: List of bookings with populated teacher references
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas/booking.yaml#/BookingsListResponse'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+  post:
+    summary: Create a new trial-lesson booking
+    description: |
+      Creates a booking between the authenticated user and the specified teacher.
+
+      - `scheduledAt` is optional — omit it if the time has not been decided yet.
+      - The `reason` field must be one of the five predefined options.
+    operationId: createBooking
+    tags: [Bookings]
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/booking.yaml#/CreateBookingRequest'
+          examples:
+            withTime:
+              summary: Booking with a scheduled time
+              value:
+                teacherId: 6657a1f2c3d4e5f6a7b8c9d0
+                reason: Career and business
+                fullName: Alice Johnson
+                email: alice@example.com
+                phone: '+1 234 567 8900'
+                scheduledAt: '2025-09-15T09:30:00.000Z'
+            withoutTime:
+              summary: Booking without a specific time
+              value:
+                teacherId: 6657a1f2c3d4e5f6a7b8c9d0
+                reason: Lesson for kids
+                fullName: Bob Smith
+                email: bob@example.com
+                phone: '+44 7911 123456'
+    responses:
+      '201':
+        description: Booking created — returns the new booking with teacher populated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                booking:
+                  $ref: '../components/schemas/booking.yaml#/Booking'
+      '400':
+        $ref: '../components/responses/responses.yaml#/BadRequest'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+
+/api/bookings/{id}:
+  patch:
+    summary: Update an existing booking
+    description: |
+      Partially updates a booking owned by the authenticated user.
+      Only the fields included in the request body are changed — all others remain untouched.
+
+      Common use-cases:
+      - **Reschedule** — send a new `scheduledAt`
+      - **Change reason** — send a new `reason`
+      - **Correct contact info** — send updated `fullName`, `email`, or `phone`
+    operationId: updateBooking
+    tags: [Bookings]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+        description: MongoDB ObjectId of the booking to update
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/booking.yaml#/UpdateBookingRequest'
+          examples:
+            reschedule:
+              summary: Reschedule to a new time
+              value:
+                scheduledAt: '2025-09-20T10:00:00.000Z'
+            changeReason:
+              summary: Change learning reason
+              value:
+                reason: Living abroad
+            fullUpdate:
+              summary: Update all fields at once
+              value:
+                fullName: Alice Johnson-Updated
+                email: alice.new@example.com
+                phone: '+1 999 000 1111'
+                reason: Exams and coursework
+                scheduledAt: '2025-10-01T08:00:00.000Z'
+    responses:
+      '200':
+        description: Updated booking object with teacher populated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                booking:
+                  $ref: '../components/schemas/booking.yaml#/Booking'
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'
+
+  delete:
+    summary: Cancel a booking
+    description: Permanently removes the booking from the database. Only the booking owner can cancel it. **This action cannot be undone.**
+    operationId: deleteBooking
+    tags: [Bookings]
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          $ref: '../components/schemas/common.yaml#/ObjectId'
+        description: MongoDB ObjectId of the booking to cancel
+    responses:
+      '200':
+        description: Booking cancelled successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Booking cancelled
+      '401':
+        $ref: '../components/responses/responses.yaml#/Unauthorized'
+      '404':
+        $ref: '../components/responses/responses.yaml#/NotFound'

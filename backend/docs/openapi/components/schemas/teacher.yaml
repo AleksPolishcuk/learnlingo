@@ -1,0 +1,103 @@
+Review:
+  type: object
+  properties:
+    reviewer_name:
+      type: string
+      example: Bob
+    reviewer_rating:
+      type: number
+      minimum: 1
+      maximum: 5
+      example: 4.5
+    comment:
+      type: string
+      example: Great teacher, very patient!
+
+Teacher:
+  type: object
+  properties:
+    _id:
+      $ref: './common.yaml#/ObjectId'
+    name:
+      type: string
+      example: Jane
+    surname:
+      type: string
+      example: Smith
+    languages:
+      type: array
+      items:
+        type: string
+      example: [French, German]
+    levels:
+      type: array
+      items:
+        type: string
+      example: [A1 Beginner, B1 Intermediate]
+    rating:
+      type: number
+      minimum: 0
+      maximum: 5
+      example: 4.8
+    reviews:
+      type: array
+      items:
+        $ref: '#/Review'
+    price_per_hour:
+      type: number
+      minimum: 0
+      example: 30
+    lessons_done:
+      type: integer
+      example: 1098
+    avatar_url:
+      type: string
+      format: uri
+      example: https://ftp.goit.study/img/avatars/2.jpg
+    lesson_info:
+      type: string
+      example: Covers grammar, vocabulary and practical usage
+    conditions:
+      type: array
+      items:
+        type: string
+      example:
+        - Welcomes adults and teenagers (13+)
+        - Provides personalised study plans
+    experience:
+      type: string
+      example: Jane has 10 years of teaching experience...
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+TeachersListResponse:
+  type: object
+  properties:
+    teachers:
+      type: array
+      items:
+        $ref: '#/Teacher'
+    total:
+      type: integer
+      example: 30
+    page:
+      type: integer
+      example: 1
+    pages:
+      type: integer
+      example: 8
+    hasMore:
+      type: boolean
+      example: true
+
+FavoritesResponse:
+  type: object
+  properties:
+    favorites:
+      type: array
+      items:
+        $ref: '#/Teacher'
