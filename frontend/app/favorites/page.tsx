@@ -104,7 +104,7 @@ export default function FavoritesPage() {
           <BookingForm
             teacher={bookingTeacher}
             onClose={() => setBookingTeacher(null)}
-            onBooked={() => showToast("Trial lesson booked! 🎉")}
+            onBooked={() => showToast("Trial lesson booked!")}
           />
         )}
       </Modal>

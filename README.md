@@ -1,12 +1,68 @@
-# LearnLingo — Full-Stack Language Tutoring Platform
+# LearnLingo — Language Tutors Platform (Full-Stack)
 
-## Project Structure
+A modern full-stack web app for browsing language tutors, saving favourites and booking trial lessons.
+Built with **Next.js + TypeScript** on the frontend and **Express + MongoDB** on the backend, fully documented via **OpenAPI (Redocly)**.
 
-```
-learnlingo/
-├── backend/          # Node.js + Express + MongoDB API
-└── frontend/         # Next.js 14 + TypeScript + CSS Modules
-```
+---
+
+## Features
+
+### Public
+
+- Tutors catalog with **filters** (language, level, price)
+- **Pagination + “Load more”** UX
+- Detailed tutor cards with reviews & experience
+
+### Auth (JWT)
+
+- Register / Login
+- Persistent session (token stored on client)
+- Protected routes & “Login required” UX modal
+
+### User
+
+- Profile editing (client/teacher role UX)
+- Account deletion
+
+### Favourites
+
+- Add/remove favourite tutors
+- Favourite list synced with API
+
+### Bookings
+
+- Create trial lesson booking
+- Optional meeting time selection (TimePicker)
+- Update booking details (PATCH)
+- Cancel booking (DELETE)
+
+### API Documentation
+
+- OpenAPI 3.0 spec + Redocly:
+  - `docs:lint`, `docs:build`, `docs:preview`
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- Next.js (App Router)
+- React 18, TypeScript
+- Axios (request/response interceptors)
+- react-hook-form + yup (forms & validation)
+- CSS Modules + global design tokens (`globals.css`)
+- SVG sprite icons (`public/sprite.svg`)
+
+### Backend
+
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT auth (Bearer token)
+- bcryptjs (password hashing)
+- CORS, dotenv
+- Redocly CLI (OpenAPI docs)
+- Nodemon (dev)
 
 ---
 

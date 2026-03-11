@@ -2,10 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const errorHandler = require("./middleware/error");
-
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const teacherRoutes = require("./routes/teacher.routes");
+const teacherAddRoutes = require("./routes/teacherAdd.routes"); // NEW
 const favoriteRoutes = require("./routes/favorite.routes");
 const bookingRoutes = require("./routes/booking.routes");
 
@@ -17,7 +17,6 @@ app.use(
     credentials: true,
   }),
 );
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -26,13 +25,13 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/teachers", teacherRoutes);
+app.use("/api/teacher-adds", teacherAddRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: `Route ${req.originalUrl} not found` });
 });
-
 app.use(errorHandler);
 
 module.exports = app;
