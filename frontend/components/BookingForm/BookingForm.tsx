@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { bookingSchema } from "@/lib/validation";
 import api from "@/lib/api";
-import { Teacher } from "@/types";
+import { AnyTeacher } from "@/types";
 import TimePicker from "@/components/TimePicker/TimePicker";
 import styles from "./BookingForm.module.css";
 
@@ -22,14 +22,22 @@ interface FormData {
   email: string;
   phone: string;
 }
+
 interface Props {
-  teacher: Teacher;
+  teacher: AnyTeacher;
+  isAd?: boolean;
   onClose: () => void;
   onBooked: () => void;
 }
 
-export default function BookingForm({ teacher, onClose, onBooked }: Props) {
+export default function BookingForm({
+  teacher,
+  isAd = false,
+  onClose,
+  onBooked,
+}: Props) {
   const [reason, setReason] = useState(REASONS[0]);
+  const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [serverError, setServerError] = useState("");
   const [imgErr, setImgErr] = useState(false);
@@ -43,31 +51,45 @@ export default function BookingForm({ teacher, onClose, onBooked }: Props) {
     defaultValues: { reason: REASONS[0] },
   });
 
+  const buildScheduledAt = (): string | undefined => {
+    if (!date) return undefined;
+    const [hh, mm] = time ? time.split(":").map(Number) : [9, 0];
+    const d = new Date(date);
+    d.setHours(hh, mm, 0, 0);
+    return d.toISOString();
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
       setServerError("");
 
-      let scheduledAt: string | undefined;
-      if (time) {
-        const [hh, mm] = time.split(":").map(Number);
-        const d = new Date();
-        d.setHours(hh, mm, 0, 0);
-        scheduledAt = d.toISOString();
+      const scheduledAt = buildScheduledAt();
+      if (!scheduledAt) {
+        setServerError("Please select a lesson date.");
+        return;
       }
 
-      await api.post("/bookings", {
+      const payload: Record<string, unknown> = {
         ...data,
         reason,
-        teacherId: teacher._id,
         scheduledAt,
-      });
+      };
 
+      if (isAd) {
+        payload.teacherAdId = teacher._id;
+      } else {
+        payload.teacherId = teacher._id;
+      }
+
+      await api.post("/bookings", payload);
       onBooked();
       onClose();
     } catch (err: any) {
       setServerError(err.message);
     }
   };
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div>
@@ -79,7 +101,7 @@ export default function BookingForm({ teacher, onClose, onBooked }: Props) {
 
       <div className={styles.teacherCard}>
         <div className={styles.teacherAvatarWrap}>
-          {!imgErr ? (
+          {teacher.avatar_url && !imgErr ? (
             <img
               src={teacher.avatar_url}
               alt={teacher.name}
@@ -97,6 +119,7 @@ export default function BookingForm({ teacher, onClose, onBooked }: Props) {
           <div className={styles.teacherName}>
             {teacher.name} {teacher.surname}
           </div>
+          {isAd && <div className={styles.adBadge}>Verified Teacher</div>}
         </div>
       </div>
 
@@ -125,6 +148,19 @@ export default function BookingForm({ teacher, onClose, onBooked }: Props) {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className={styles.field}>
+          <label className={styles.label}>
+            Lesson Date <span className={styles.required}>*</span>
+          </label>
+          <input
+            type="date"
+            className={styles.input}
+            value={date}
+            min={today}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+
         <div className={styles.field}>
           <label className={styles.label}>Meeting Time (optional)</label>
           <TimePicker value={time} onChange={setTime} />

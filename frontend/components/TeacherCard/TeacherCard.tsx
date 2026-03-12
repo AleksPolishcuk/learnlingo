@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import { Teacher } from "@/types";
 import styles from "./TeacherCard.module.css";
 
@@ -28,9 +27,8 @@ function Stars({ rating }: { rating: number }) {
       <svg className={styles.iconStar} aria-hidden="true">
         <use href="/sprite.svg#icon-star" />
       </svg>
-
       <span className={styles.ratingLabel}>Rating:</span>
-      <span className={styles.ratingValue}>{rating}</span>
+      <span className={styles.ratingValue}>{rating ?? "—"}</span>
     </span>
   );
 }
@@ -49,12 +47,19 @@ export default function TeacherCard({
   const handleHeart = () => (isAuth ? onToggleFav() : onAuthRequired());
   const handleBook = () => (isAuth ? onBook() : onAuthRequired());
 
+  const languages: string[] = teacher.languages ?? [];
+  const conditions: string[] = teacher.conditions ?? [];
+  const levels: string[] = teacher.levels ?? [];
+  const reviews = teacher.reviews ?? [];
+  const lessonInfo = teacher.lesson_info ?? "";
+  const experience = teacher.experience ?? "";
+
   return (
     <div className={styles.card}>
       <div className={styles.inner}>
         <div className={styles.avatarWrap}>
           <div className={styles.avatarRing}>
-            {!imgErr ? (
+            {teacher.avatar_url && !imgErr ? (
               <img
                 src={teacher.avatar_url}
                 alt={teacher.name}
@@ -62,7 +67,9 @@ export default function TeacherCard({
                 onError={() => setImgErr(true)}
               />
             ) : (
-              <span className={styles.avatarFallback}>{teacher.name[0]}</span>
+              <span className={styles.avatarFallback}>
+                {teacher.name?.[0] ?? "?"}
+              </span>
             )}
           </div>
           <div className={styles.onlineDot} />
@@ -84,13 +91,10 @@ export default function TeacherCard({
                   </svg>
                   Lessons online
                 </span>
-
                 <span className={styles.metaItem}>
-                  Lessons done: <strong>{teacher.lessons_done}</strong>
+                  Lessons done: <strong>{teacher.lessons_done ?? 0}</strong>
                 </span>
-
-                <Stars rating={teacher.rating} />
-
+                <Stars rating={teacher.rating ?? 0} />
                 <span className={styles.metaItem}>
                   Price / 1 hour:{" "}
                   <span className={styles.price}>
@@ -113,27 +117,31 @@ export default function TeacherCard({
             </div>
           </div>
 
-          <p className={styles.speaks}>
-            Speaks:{" "}
-            {teacher.languages.map((l, i) => (
-              <span key={l}>
-                <span className={styles.speakLang}>{l}</span>
-                {i < teacher.languages.length - 1 ? ", " : ""}
-              </span>
-            ))}
-          </p>
+          {languages.length > 0 && (
+            <p className={styles.speaks}>
+              Speaks:{" "}
+              {languages.map((l, i) => (
+                <span key={l}>
+                  <span className={styles.speakLang}>{l}</span>
+                  {i < languages.length - 1 ? ", " : ""}
+                </span>
+              ))}
+            </p>
+          )}
 
-          <p className={styles.infoRow}>
-            <span className={styles.infoLabel}>Lesson Info: </span>
-            <span className={styles.infoValue}>{teacher.lesson_info}</span>
-          </p>
+          {lessonInfo && (
+            <p className={styles.infoRow}>
+              <span className={styles.infoLabel}>Lesson Info: </span>
+              <span className={styles.infoValue}>{lessonInfo}</span>
+            </p>
+          )}
 
-          <p className={styles.infoRow}>
-            <span className={styles.infoLabel}>Conditions: </span>
-            <span className={styles.infoValue}>
-              {teacher.conditions.join(". ")}
-            </span>
-          </p>
+          {conditions.length > 0 && (
+            <p className={styles.infoRow}>
+              <span className={styles.infoLabel}>Conditions: </span>
+              <span className={styles.infoValue}>{conditions.join(". ")}</span>
+            </p>
+          )}
 
           {!expanded && (
             <button
@@ -146,46 +154,63 @@ export default function TeacherCard({
 
           {expanded && (
             <div className={styles.expandedSection}>
-              <p className={styles.experience}>{teacher.experience}</p>
-              <div className={styles.reviews}>
-                {teacher.reviews.map((r, i) => (
-                  <div key={i} className={styles.review}>
-                    <div className={styles.reviewMeta}>
-                      <div
-                        className={styles.reviewAvatar}
-                        style={{
-                          background: REVIEW_COLORS[i % REVIEW_COLORS.length],
-                        }}
-                      >
-                        {r.reviewer_name[0]}
-                      </div>
-                      <div>
-                        <div className={styles.reviewerName}>
-                          {r.reviewer_name}
+              {experience ? (
+                <p className={styles.experience}>{experience}</p>
+              ) : (
+                <p
+                  className={styles.experience}
+                  style={{ color: "var(--text-muted)", fontStyle: "italic" }}
+                >
+                  No experience description provided yet.
+                </p>
+              )}
+
+              {reviews.length > 0 ? (
+                <div className={styles.reviews}>
+                  {reviews.map((r, i) => (
+                    <div key={i} className={styles.review}>
+                      <div className={styles.reviewMeta}>
+                        <div
+                          className={styles.reviewAvatar}
+                          style={{
+                            background: REVIEW_COLORS[i % REVIEW_COLORS.length],
+                          }}
+                        >
+                          {r.reviewer_name?.[0] ?? "?"}
                         </div>
-                        <Stars rating={r.reviewer_rating} />
+                        <div>
+                          <div className={styles.reviewerName}>
+                            {r.reviewer_name}
+                          </div>
+                          <Stars rating={r.reviewer_rating} />
+                        </div>
                       </div>
+                      <p className={styles.reviewComment}>{r.comment}</p>
                     </div>
-                    <p className={styles.reviewComment}>{r.comment}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className={styles.noReviews}>No reviews yet.</p>
+              )}
+
               <button className={styles.bookBtn} onClick={handleBook}>
                 Book trial lesson
               </button>
             </div>
           )}
 
-          <div className={styles.pills}>
-            {teacher.levels.map((lv, i) => (
-              <span
-                key={lv}
-                className={`${styles.pill} ${i === 0 ? styles.pillActive : ""}`}
-              >
-                #{lv}
-              </span>
-            ))}
-          </div>
+          {levels.length > 0 && (
+            <div className={styles.pills}>
+              {levels.map((lv, i) => (
+                <span
+                  key={lv}
+                  className={`${styles.pill} ${i === 0 ? styles.pillActive : ""}`}
+                >
+                  #{lv}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
