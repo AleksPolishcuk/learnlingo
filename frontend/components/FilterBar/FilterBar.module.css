@@ -3,6 +3,7 @@
   gap: 24px;
   flex-wrap: wrap;
   margin-bottom: 36px;
+  align-items: flex-end;
 }
 
 .filterGroup {
@@ -39,11 +40,12 @@
   font-weight: 600;
   box-shadow: var(--shadow-sm);
   transition: border-color 0.15s;
+  cursor: pointer;
 }
-
 .trigger:hover {
   border-color: var(--border-hover);
 }
+
 .triggerPlaceholder {
   color: var(--text-muted);
   font-weight: 400;
@@ -60,7 +62,6 @@
   transition: transform 0.2s;
   color: #aaa;
 }
-
 .chevronOpen {
   transform: translateY(-50%) rotate(180deg);
 }
@@ -79,6 +80,7 @@
   max-height: 260px;
   overflow-y: auto;
   animation: fadeIn 0.15s ease both;
+  min-width: 180px;
 }
 
 .option {
@@ -90,7 +92,6 @@
   transition: background 0.12s;
   font-weight: 400;
 }
-
 .option:hover {
   background: #f9f9f9;
 }
@@ -110,7 +111,38 @@
   border-bottom: 1px solid var(--border);
   transition: background 0.12s;
 }
-
 .optionAll:hover {
   background: #f0f0f0;
+}
+
+.resetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  white-space: nowrap;
+}
+.resetBtn:hover {
+  background: var(--red-light);
+  border-color: #fca5a5;
+  color: var(--red);
+}
+
+.resetIcon {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
 }

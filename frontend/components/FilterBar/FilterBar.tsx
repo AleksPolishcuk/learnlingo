@@ -14,6 +14,7 @@ const ALL_LANGUAGES = [
   "Vietnamese",
   "Japanese",
 ];
+
 const ALL_LEVELS = [
   "A1 Beginner",
   "A2 Elementary",
@@ -22,7 +23,22 @@ const ALL_LEVELS = [
   "C1 Advanced",
   "C2 Proficient",
 ];
+
 const PRICES = ["10", "20", "30", "40"];
+
+const SORT_OPTIONS = [
+  { value: "name_asc", label: "Name A → Z" },
+  { value: "name_desc", label: "Name Z → A" },
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+];
+
+const DEFAULT_FILTERS: TeacherFilters = {
+  language: "",
+  level: "",
+  price: "",
+  sortBy: "",
+};
 
 interface Props {
   filters: TeacherFilters;
@@ -38,7 +54,7 @@ function Select({
 }: {
   label: string;
   value: string;
-  options: string[];
+  options: { value: string; label: string }[];
   placeholder: string;
   onChange: (v: string) => void;
 }) {
@@ -54,13 +70,15 @@ function Select({
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
+  const selectedLabel = options.find((o) => o.value === value)?.label ?? "";
+
   return (
     <div className={styles.filterGroup}>
       <span className={styles.label}>{label}</span>
       <div ref={ref} className={styles.wrapper}>
         <button className={styles.trigger} onClick={() => setOpen((p) => !p)}>
           <span className={value ? "" : styles.triggerPlaceholder}>
-            {value || placeholder}
+            {selectedLabel || placeholder}
           </span>
         </button>
         <svg className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`}>
@@ -79,14 +97,14 @@ function Select({
             </div>
             {options.map((o) => (
               <div
-                key={o}
-                className={`${styles.option} ${value === o ? styles.optionActive : ""}`}
+                key={o.value}
+                className={`${styles.option} ${value === o.value ? styles.optionActive : ""}`}
                 onClick={() => {
-                  onChange(o);
+                  onChange(o.value);
                   setOpen(false);
                 }}
               >
-                {o}
+                {o.label}
               </div>
             ))}
           </div>
@@ -99,29 +117,54 @@ function Select({
 export default function FilterBar({ filters, onChange }: Props) {
   const set = (key: keyof TeacherFilters) => (v: string) =>
     onChange({ ...filters, [key]: v });
+
+  const isFiltered =
+    filters.language || filters.level || filters.price || filters.sortBy;
+
+  const handleReset = () => onChange(DEFAULT_FILTERS);
+
   return (
     <div className={styles.filterBar}>
       <Select
         label="Languages"
         value={filters.language}
-        options={ALL_LANGUAGES}
+        options={ALL_LANGUAGES.map((l) => ({ value: l, label: l }))}
         placeholder="All Languages"
         onChange={set("language")}
       />
       <Select
         label="Level of knowledge"
         value={filters.level}
-        options={ALL_LEVELS}
+        options={ALL_LEVELS.map((l) => ({ value: l, label: l }))}
         placeholder="All Levels"
         onChange={set("level")}
       />
       <Select
         label="Price"
         value={filters.price}
-        options={PRICES}
+        options={PRICES.map((p) => ({ value: p, label: `${p} $` }))}
         placeholder="All Prices"
         onChange={set("price")}
       />
+      <Select
+        label="Sort by"
+        value={filters.sortBy}
+        options={SORT_OPTIONS}
+        placeholder="All"
+        onChange={set("sortBy")}
+      />
+
+      {isFiltered && (
+        <div className={styles.filterGroup}>
+          <span className={styles.label}>&nbsp;</span>
+          <button className={styles.resetBtn} onClick={handleReset}>
+            <svg className={styles.resetIcon} aria-hidden="true">
+              <use href="/sprite.svg#icon-x" />
+            </svg>
+            Reset
+          </button>
+        </div>
+      )}
     </div>
   );
 }
