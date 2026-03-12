@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { User } from "@/types";
 import UserAvatar from "@/components/UserAvatar/UserAvatar";
 import styles from "./Header.module.css";
-import Image from "next/image";
+
 interface NavbarProps {
   user: User | null;
   onLogin: () => void;
@@ -14,14 +14,9 @@ interface NavbarProps {
   onProfile: () => void;
 }
 
-const NAV_LINKS = [
+const BASE_LINKS = [
   { href: "/", label: "Home" },
   { href: "/teachers", label: "Teachers" },
-];
-
-const PRIVATE_LINKS = [
-  { href: "/favorites", label: "Favorites" },
-  { href: "/reservations", label: "Reservations" },
 ];
 
 export default function Navbar({
@@ -45,6 +40,16 @@ export default function Navbar({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const privateLinks =
+    user?.role === "business"
+      ? [{ href: "/dashboard", label: "Dashboard" }]
+      : [
+          { href: "/favorites", label: "Favorites" },
+          { href: "/reservations", label: "Reservations" },
+        ];
+
+  const allLinks = user ? [...BASE_LINKS, ...privateLinks] : BASE_LINKS;
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.container}>
@@ -55,7 +60,7 @@ export default function Navbar({
         </Link>
 
         <div className={styles.nav}>
-          {NAV_LINKS.map(({ href, label }) => (
+          {allLinks.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
@@ -64,16 +69,6 @@ export default function Navbar({
               {label}
             </Link>
           ))}
-          {user &&
-            PRIVATE_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ""}`}
-              >
-                {label}
-              </Link>
-            ))}
         </div>
 
         <div className={styles.actions}>
@@ -110,7 +105,9 @@ export default function Navbar({
                 <div className={styles.dropdown}>
                   <div className={styles.dropdownHeader}>
                     <div className={styles.dropdownName}>{user.name}</div>
-                    <div className={styles.dropdownRole}>{user.role}</div>
+                    <div className={styles.dropdownRole}>
+                      {user.role === "business" ? "Teacher" : "Student"}
+                    </div>
                   </div>
                   <button
                     className={styles.dropdownItem}
@@ -124,6 +121,30 @@ export default function Navbar({
                     </svg>
                     Edit Profile
                   </button>
+                  {user.role === "business" && (
+                    <Link
+                      href="/dashboard"
+                      className={styles.dropdownItem}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <svg className={styles.iconEdit} aria-hidden="true">
+                        <use href="/sprite.svg#icon-calendar" />
+                      </svg>
+                      Lesson Dashboard
+                    </Link>
+                  )}
+                  {user.role === "client" && (
+                    <Link
+                      href="/reservations"
+                      className={styles.dropdownItem}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <svg className={styles.iconEdit} aria-hidden="true">
+                        <use href="/sprite.svg#icon-calendar" />
+                      </svg>
+                      My Reservations
+                    </Link>
+                  )}
                 </div>
               )}
             </div>

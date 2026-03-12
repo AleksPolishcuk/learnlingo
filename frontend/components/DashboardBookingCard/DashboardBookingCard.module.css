@@ -1,0 +1,232 @@
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.3s ease both;
+  transition: box-shadow 0.2s;
+}
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+.cardConfirmed {
+  border-left: 4px solid #38cd3e;
+}
+.cardCancelled {
+  border-left: 4px solid var(--red);
+  opacity: 0.85;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.studentInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #e8a820);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.studentName {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.studentMeta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badgePending {
+  background: #fff8e1;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+.badgeConfirmed {
+  background: #eafaf1;
+  color: #1a7a3a;
+  border: 1px solid #6ee7b7;
+}
+.badgeCancelled {
+  background: var(--red-light);
+  color: var(--red);
+  border: 1px solid #fca5a5;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.prevMsg {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+.prevMsgGreen {
+  background: #eafaf1;
+  color: #1a5c2a;
+  border-left: 3px solid #38cd3e;
+}
+.prevMsgRed {
+  background: var(--red-light);
+  color: #b91c1c;
+  border-left: 3px solid var(--red);
+}
+
+.error {
+  font-size: 12px;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.confirmBtn {
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: #38cd3e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.confirmBtn:hover {
+  opacity: 0.88;
+}
+.confirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid #ffcdd2;
+  background: var(--red-light);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cancelBtn:hover {
+  background: #ffd7d7;
+}
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.msgBox {
+  background: #fafafa;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: 14px;
+  animation: fadeIn 0.15s ease both;
+}
+
+.msgLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.msgTextarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--card-bg);
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.msgTextarea:focus {
+  border-color: var(--accent);
+}
+
+.msgActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.discardBtn {
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.discardBtn:hover {
+  background: #f0f0f0;
+}
