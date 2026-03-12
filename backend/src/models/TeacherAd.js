@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const teacherAddSchema = new mongoose.Schema(
+const teacherAdSchema = new mongoose.Schema(
   {
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -57,9 +57,9 @@ const teacherAddSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-teacherAddSchema.index({ languages: 1 });
-teacherAddSchema.index({ levels: 1 });
-teacherAddSchema.index({ price_per_hour: 1 });
-teacherAddSchema.index({ rating: -1 });
+teacherAdSchema.index({ languages: 1 });
+teacherAdSchema.index({ levels: 1 });
+teacherAdSchema.index({ price_per_hour: 1 });
+teacherAdSchema.index({ rating: -1 });
 
-module.exports = mongoose.model("TeacherAdd", teacherAddSchema);
+module.exports = mongoose.model("TeacherAd", teacherAdSchema);

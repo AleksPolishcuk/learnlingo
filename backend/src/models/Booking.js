@@ -17,7 +17,6 @@ const bookingSchema = new mongoose.Schema(
       ref: "TeacherAd",
       default: null,
     },
-
     teacherUser: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -46,19 +45,16 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       required: [true, "Scheduled date and time is required"],
     },
-
     teacherStatus: {
       type: String,
       enum: ["pending", "confirmed", "cancelled"],
       default: "pending",
     },
-
     cancelledBy: {
       type: String,
       enum: ["student", "teacher", null],
       default: null,
     },
-
     teacherMessage: {
       type: String,
       default: "",

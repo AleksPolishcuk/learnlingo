@@ -5,7 +5,7 @@ const errorHandler = require("./middleware/error");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const teacherRoutes = require("./routes/teacher.routes");
-const teacherAddRoutes = require("./routes/teacherAdd.routes"); // NEW
+const teacherAdRoutes = require("./routes/teacherAd.routes");
 const favoriteRoutes = require("./routes/favorite.routes");
 const bookingRoutes = require("./routes/booking.routes");
 
@@ -25,7 +25,7 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/teachers", teacherRoutes);
-app.use("/api/teacher-adds", teacherAddRoutes);
+app.use("/api/teacher-adds", teacherAdRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
 

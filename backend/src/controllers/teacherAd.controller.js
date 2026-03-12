@@ -1,6 +1,6 @@
-const TeacherAdd = require("../models/TeacherAdd");
+const TeacherAd = require("../models/TeacherAd");
 
-const getTeacherAdds = async (req, res, next) => {
+const getTeacherAds = async (req, res, next) => {
   try {
     const { language, level, price, page = 1, limit = 4 } = req.query;
 
@@ -11,66 +11,66 @@ const getTeacherAdds = async (req, res, next) => {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const [adds, total] = await Promise.all([
-      TeacherAdd.find(filter)
+    const [ads, total] = await Promise.all([
+      TeacherAd.find(filter)
         .populate("owner", "name email")
         .skip(skip)
         .limit(Number(limit))
         .sort({ rating: -1 }),
-      TeacherAdd.countDocuments(filter),
+      TeacherAd.countDocuments(filter),
     ]);
 
     res.json({
-      teachers: adds,
+      teachers: ads,
       total,
       page: Number(page),
       pages: Math.ceil(total / Number(limit)),
-      hasMore: skip + adds.length < total,
+      hasMore: skip + ads.length < total,
     });
   } catch (error) {
     next(error);
   }
 };
 
-const getTeacherAddById = async (req, res, next) => {
+const getTeacherAdById = async (req, res, next) => {
   try {
-    const ad = await TeacherAdd.findById(req.params.id).populate(
+    const ad = await TeacherAd.findById(req.params.id).populate(
       "owner",
       "name email",
     );
-    if (!ad) return res.status(404).json({ message: "Teacher add not found" });
+    if (!ad) return res.status(404).json({ message: "Teacher ad not found" });
     res.json({ teacher: ad });
   } catch (error) {
     next(error);
   }
 };
 
-const getMyAdd = async (req, res, next) => {
+const getMyAd = async (req, res, next) => {
   try {
     if (req.user.role !== "business") {
       return res
         .status(403)
-        .json({ message: "Only business accounts can manage adds" });
+        .json({ message: "Only business accounts can manage ads" });
     }
-    const ad = await TeacherAdd.findOne({ owner: req.user._id });
+    const ad = await TeacherAd.findOne({ owner: req.user._id });
     res.json({ ad: ad || null });
   } catch (error) {
     next(error);
   }
 };
 
-const createTeacherAdd = async (req, res, next) => {
+const createTeacherAd = async (req, res, next) => {
   try {
     if (req.user.role !== "business") {
       return res
         .status(403)
-        .json({ message: "Only business accounts can create adds" });
+        .json({ message: "Only business accounts can create ads" });
     }
 
-    const existing = await TeacherAdd.findOne({ owner: req.user._id });
+    const existing = await TeacherAd.findOne({ owner: req.user._id });
     if (existing) {
       return res.status(400).json({
-        message: "You already have an active add. Use PUT to update it.",
+        message: "You already have an active ad. Use PUT to update it.",
       });
     }
 
@@ -99,7 +99,7 @@ const createTeacherAdd = async (req, res, next) => {
       });
     }
 
-    const add = await TeacherAdd.create({
+    const ad = await TeacherAd.create({
       owner: req.user._id,
       name,
       surname,
@@ -112,26 +112,26 @@ const createTeacherAdd = async (req, res, next) => {
       experience: experience || "",
     });
 
-    res.status(201).json({ add });
+    res.status(201).json({ ad });
   } catch (error) {
     next(error);
   }
 };
 
-const updateTeacherAdd = async (req, res, next) => {
+const updateTeacherAd = async (req, res, next) => {
   try {
     if (req.user.role !== "business") {
       return res
         .status(403)
-        .json({ message: "Only business accounts can update adds" });
+        .json({ message: "Only business accounts can update ads" });
     }
 
-    const add = await TeacherAdd.findOne({
+    const ad = await TeacherAd.findOne({
       _id: req.params.id,
       owner: req.user._id,
     });
     if (!ad)
-      return res.status(404).json({ message: "Add not found or not yours" });
+      return res.status(404).json({ message: "Ad not found or not yours" });
 
     const allowed = [
       "name",
@@ -147,30 +147,30 @@ const updateTeacherAdd = async (req, res, next) => {
     ];
 
     allowed.forEach((field) => {
-      if (req.body[field] !== undefined) add[field] = req.body[field];
+      if (req.body[field] !== undefined) ad[field] = req.body[field];
     });
 
     await ad.save();
-    res.json({ add });
+    res.json({ ad });
   } catch (error) {
     next(error);
   }
 };
 
-const deleteTeacherAdd = async (req, res, next) => {
+const deleteTeacherAd = async (req, res, next) => {
   try {
     if (req.user.role !== "business") {
       return res
         .status(403)
-        .json({ message: "Only business accounts can delete adds" });
+        .json({ message: "Only business accounts can delete ads" });
     }
 
-    const ad = await TeacherAdd.findOneAndDelete({
+    const ad = await TeacherAd.findOneAndDelete({
       _id: req.params.id,
       owner: req.user._id,
     });
     if (!ad)
-      return res.status(404).json({ message: "Add not found or not yours" });
+      return res.status(404).json({ message: "Ad not found or not yours" });
 
     res.json({ message: "Ad deleted successfully" });
   } catch (error) {
@@ -179,10 +179,10 @@ const deleteTeacherAdd = async (req, res, next) => {
 };
 
 module.exports = {
-  getTeacherAdds,
-  getTeacherAddById,
-  getMyAdd,
-  createTeacherAdd,
-  updateTeacherAdd,
-  deleteTeacherAdd,
+  getTeacherAds,
+  getTeacherAdById,
+  getMyAd,
+  createTeacherAd,
+  updateTeacherAd,
+  deleteTeacherAd,
 };

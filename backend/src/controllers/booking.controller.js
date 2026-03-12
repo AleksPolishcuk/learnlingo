@@ -1,15 +1,14 @@
 const Booking = require("../models/Booking");
-const TeacherAdd = require("../models/TeacherAdd");
-
+const TeacherAd = require("../models/TeacherAd");
 
 const hasConflict = async ({
-  teacherAddId,
+  teacherAdId,
   teacherId,
   scheduledAt,
   excludeBookingId,
 }) => {
   const slotStart = new Date(scheduledAt);
-  const slotEnd = new Date(slotStart.getTime() + 60 * 60 * 1000); 
+  const slotEnd = new Date(slotStart.getTime() + 60 * 60 * 1000);
 
   const query = {
     teacherStatus: { $ne: "cancelled" },
@@ -19,7 +18,7 @@ const hasConflict = async ({
     },
   };
 
-  if (teacherAddId) query.teacherAdd = teacherAddId;
+  if (teacherAdId) query.teacherAd = teacherAdId;
   else if (teacherId) query.teacher = teacherId;
 
   if (excludeBookingId) query._id = { $ne: excludeBookingId };
@@ -56,11 +55,10 @@ const getBookings = async (req, res, next) => {
   }
 };
 
-
 const createBooking = async (req, res, next) => {
   try {
     const {
-      teacherAddId,
+      teacherAdId,
       teacherId,
       reason,
       fullName,
@@ -74,10 +72,10 @@ const createBooking = async (req, res, next) => {
         message: "reason, fullName, email, phone and scheduledAt are required",
       });
     }
-    if (!teacherAddId && !teacherId) {
+    if (!teacherAdId && !teacherId) {
       return res
         .status(400)
-        .json({ message: "teacherAddId or teacherId is required" });
+        .json({ message: "teacherAdId or teacherId is required" });
     }
     if (new Date(scheduledAt) < new Date()) {
       return res
@@ -85,11 +83,7 @@ const createBooking = async (req, res, next) => {
         .json({ message: "scheduledAt must be in the future" });
     }
 
-    const conflict = await hasConflict({
-      teacherAddId,
-      teacherId,
-      scheduledAt,
-    });
+    const conflict = await hasConflict({ teacherAdId, teacherId, scheduledAt });
     if (conflict) {
       return res.status(409).json({
         message:
@@ -98,8 +92,8 @@ const createBooking = async (req, res, next) => {
     }
 
     let teacherUser = null;
-    if (teacherAddId) {
-      const ad = await TeacherAdd.findById(teacherAddId).lean();
+    if (teacherAdId) {
+      const ad = await TeacherAd.findById(teacherAdId).lean();
       if (!ad) return res.status(404).json({ message: "Teacher ad not found" });
       teacherUser = ad.owner;
     }
@@ -107,7 +101,7 @@ const createBooking = async (req, res, next) => {
     const booking = await Booking.create({
       user: req.user._id,
       teacher: teacherId || null,
-      teacherAdd: teacherAddId || null,
+      teacherAd: teacherAdId || null,
       teacherUser,
       reason,
       fullName,
@@ -119,7 +113,7 @@ const createBooking = async (req, res, next) => {
     const populated = await Booking.findById(booking._id)
       .populate("teacher", "name surname avatar_url languages")
       .populate(
-        "teacherAdd",
+        "teacherAd",
         "name surname avatar_url languages price_per_hour",
       );
 
@@ -134,7 +128,6 @@ const createBooking = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const updateBooking = async (req, res, next) => {
   try {
@@ -160,7 +153,7 @@ const updateBooking = async (req, res, next) => {
           .json({ message: "scheduledAt must be in the future" });
       }
       const conflict = await hasConflict({
-        teacherAddId: booking.teacherAdd,
+        teacherAdId: booking.teacherAd,
         teacherId: booking.teacher,
         scheduledAt,
         excludeBookingId: booking._id,
@@ -184,7 +177,7 @@ const updateBooking = async (req, res, next) => {
     const populated = await Booking.findById(booking._id)
       .populate("teacher", "name surname avatar_url languages")
       .populate(
-        "teacherAdd",
+        "teacherAd",
         "name surname avatar_url languages price_per_hour",
       );
 
@@ -239,7 +232,7 @@ const confirmBooking = async (req, res, next) => {
     const populated = await Booking.findById(booking._id)
       .populate("user", "name email")
       .populate(
-        "teacherAdd",
+        "teacherAd",
         "name surname avatar_url languages price_per_hour",
       );
 
@@ -248,7 +241,6 @@ const confirmBooking = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const cancelBookingByTeacher = async (req, res, next) => {
   try {
@@ -276,7 +268,7 @@ const cancelBookingByTeacher = async (req, res, next) => {
     const populated = await Booking.findById(booking._id)
       .populate("user", "name email")
       .populate(
-        "teacherAdd",
+        "teacherAd",
         "name surname avatar_url languages price_per_hour",
       );
 
