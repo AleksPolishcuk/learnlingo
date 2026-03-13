@@ -7,6 +7,8 @@ const {
   deleteBooking,
   confirmBooking,
   cancelBookingByTeacher,
+  completeBooking,
+  leaveReview,
 } = require("../controllers/booking.controller");
 const { protect } = require("../middleware/auth");
 
@@ -17,5 +19,8 @@ router.delete("/:id", protect, deleteBooking);
 
 router.patch("/:id/confirm", protect, confirmBooking);
 router.patch("/:id/cancel", protect, cancelBookingByTeacher);
+router.patch("/:id/complete", protect, completeBooking);
+
+router.post("/:id/review", protect, leaveReview);
 
 module.exports = router;
