@@ -60,7 +60,6 @@ export default function ReviewForm({ booking, onReviewed, onClose }: Props) {
 
       {error && <div className={styles.errorBox}>{error}</div>}
 
-      {/* Star picker */}
       <div className={styles.starsLabel}>Your rating</div>
       <div className={styles.stars}>
         {[1, 2, 3, 4, 5].map((star) => (
@@ -83,7 +82,6 @@ export default function ReviewForm({ booking, onReviewed, onClose }: Props) {
         )}
       </div>
 
-      {/* Comment */}
       <div className={styles.field}>
         <label className={styles.label}>Your comment *</label>
         <textarea

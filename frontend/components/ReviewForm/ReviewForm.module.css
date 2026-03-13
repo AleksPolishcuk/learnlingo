@@ -29,7 +29,6 @@
   color: var(--red);
 }
 
-/* ── Star picker ── */
 .starsLabel {
   font-size: 11px;
   font-weight: 700;
@@ -70,7 +69,6 @@
   margin-left: 8px;
 }
 
-/* ── Comment ── */
 .field {
   display: flex;
   flex-direction: column;
@@ -112,7 +110,6 @@
   align-self: flex-end;
 }
 
-/* ── Actions ── */
 .actions {
   display: flex;
   gap: 10px;
