@@ -1,0 +1,144 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.loading {
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.summaryCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.summaryIcon {
+  font-size: 24px;
+}
+
+.summaryValue {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--text);
+  line-height: 1;
+}
+
+.summaryLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.empty {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 32px 0;
+}
+
+.table {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  padding: 10px 16px;
+  background: #fafafa;
+  border-bottom: 1.5px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background 0.12s;
+}
+.tableRow:last-child {
+  border-bottom: none;
+}
+.tableRow:hover {
+  background: #fafafa;
+}
+.tableRowInactive {
+  opacity: 0.55;
+}
+
+.adCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.adCellName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.adCellSub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.inactiveMark {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.cell {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--font-body);
+}
+.cellGreen {
+  color: #16a34a;
+}
+.cellAmber {
+  color: #b45309;
+}
+.cellBlue {
+  color: #1d4ed8;
+}
+
+@media (max-width: 700px) {
+  .summary {
+    grid-template-columns: 1fr 1fr;
+  }
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+  .tableHeader span:nth-child(n + 4),
+  .tableRow span:nth-child(n + 4) {
+    display: none;
+  }
+}

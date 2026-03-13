@@ -4,132 +4,125 @@ import { useRouter } from "next/navigation";
 import { Booking } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
 import DashboardBookingCard from "@/components/DashboardBookingCard/DashboardBookingCard";
-import SkeletonCard from "@/components/SkeletonCard/SkeletonCard";
+import EarningsPanel from "@/components/EarningsPanel/EarningsPanel";
 import api from "@/lib/api";
 import styles from "./page.module.css";
 
-type FilterTab = "all" | "pending" | "confirmed" | "cancelled";
+type FilterTab = "all" | "pending" | "confirmed" | "completed" | "cancelled";
+type SectionTab = "bookings" | "earnings";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isAuth, loading, user } = useAuthContext();
+  const { user, isAuth, loading: authLoading } = useAuthContext();
+
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [fetching, setFetching] = useState(true);
-  const [tab, setTab] = useState<FilterTab>("all");
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterTab>("all");
+  const [sectionTab, setSectionTab] = useState<SectionTab>("bookings");
 
   useEffect(() => {
-    if (!loading) {
-      if (!isAuth) router.replace("/teachers");
-      else if (user?.role !== "business") router.replace("/reservations");
+    if (authLoading) return;
+    if (!isAuth || user?.role !== "business") {
+      router.replace(isAuth ? "/reservations" : "/teachers");
     }
-  }, [loading, isAuth, user, router]);
+  }, [isAuth, user, authLoading, router]);
 
   useEffect(() => {
     if (!isAuth || user?.role !== "business") return;
     api
       .get("/bookings")
-      .then(({ data }) => setBookings(data.bookings))
-      .catch(() => setBookings([]))
-      .finally(() => setFetching(false));
+      .then(({ data }) => {
+        setBookings(data.bookings);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [isAuth, user]);
 
-  const handleUpdate = (updated: Booking) => {
+  const handleChange = (updated: Booking) =>
     setBookings((prev) =>
       prev.map((b) => (b._id === updated._id ? updated : b)),
     );
-  };
-
-  const filtered =
-    tab === "all" ? bookings : bookings.filter((b) => b.teacherStatus === tab);
 
   const counts = {
     all: bookings.length,
     pending: bookings.filter((b) => b.teacherStatus === "pending").length,
     confirmed: bookings.filter((b) => b.teacherStatus === "confirmed").length,
+    completed: bookings.filter((b) => b.teacherStatus === "completed").length,
     cancelled: bookings.filter((b) => b.teacherStatus === "cancelled").length,
   };
 
-  if (loading || !isAuth || user?.role !== "business") return null;
+  const filtered =
+    filter === "all"
+      ? bookings
+      : bookings.filter((b) => b.teacherStatus === filter);
+
+  if (authLoading || (!isAuth && !authLoading)) return null;
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <div>
-          <h1 className={styles.heading}>Lesson Dashboard</h1>
-          <p className={styles.subheading}>
-            Manage booking requests from your students
-          </p>
-        </div>
-        <div className={styles.stats}>
-          <div className={styles.statItem}>
-            <span className={styles.statNum}>{counts.pending}</span>
-            <span className={styles.statLabel}>Pending</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNum}>{counts.confirmed}</span>
-            <span className={styles.statLabel}>Confirmed</span>
-          </div>
-          <div className={styles.statDivider} />
-          <div className={styles.statItem}>
-            <span className={styles.statNum}>{counts.all}</span>
-            <span className={styles.statLabel}>Total</span>
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.tabs}>
-        {(["all", "pending", "confirmed", "cancelled"] as FilterTab[]).map(
-          (t) => (
-            <button
-              key={t}
-              className={`${styles.tab} ${tab === t ? styles.tabActive : ""}`}
-              onClick={() => setTab(t)}
-            >
-              {t.charAt(0).toUpperCase() + t.slice(1)}
-              <span className={styles.tabCount}>{counts[t]}</span>
-            </button>
-          ),
-        )}
-      </div>
-
-      {fetching ? (
-        <div className={styles.list}>
-          {[...Array(3)].map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className={styles.empty}>
-          <svg
-            className={styles.emptyIcon}
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
+        <h1 className={styles.pageTitle}>Dashboard</h1>
+        <div className={styles.sectionTabs}>
+          <button
+            className={`${styles.sectionTab} ${sectionTab === "bookings" ? styles.sectionTabActive : ""}`}
+            onClick={() => setSectionTab("bookings")}
           >
-            <use
-              href="/sprite.svg#icon-calendar-svg"
-              xlinkHref="/sprite.svg#icon-calendar-svg"
-            />
-          </svg>
-          <p className={styles.emptyTitle}>
-            {tab === "all" ? "No bookings yet" : `No ${tab} bookings`}
-          </p>
-          <p className={styles.emptyText}>
-            {tab === "all"
-              ? "Students will appear here once they book a lesson with you."
-              : `No bookings with "${tab}" status.`}
-          </p>
+            Bookings
+          </button>
+          <button
+            className={`${styles.sectionTab} ${sectionTab === "earnings" ? styles.sectionTabActive : ""}`}
+            onClick={() => setSectionTab("earnings")}
+          >
+            Earnings
+          </button>
         </div>
+      </div>
+
+      {sectionTab === "earnings" ? (
+        <EarningsPanel />
       ) : (
-        <div className={styles.list}>
-          {filtered.map((b) => (
-            <DashboardBookingCard
-              key={b._id}
-              booking={b}
-              onUpdate={handleUpdate}
-            />
-          ))}
-        </div>
+        <>
+          <div className={styles.statsBar}>
+            {(
+              [
+                "all",
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled",
+              ] as FilterTab[]
+            ).map((f) => (
+              <button
+                key={f}
+                className={`${styles.statCard} ${filter === f ? styles.statCardActive : ""}`}
+                onClick={() => setFilter(f)}
+              >
+                <span className={styles.statNum}>{counts[f]}</span>
+                <span className={styles.statLabel}>
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {loading ? (
+            <div className={styles.loading}>Loading bookings…</div>
+          ) : filtered.length === 0 ? (
+            <div className={styles.empty}>
+              No {filter === "all" ? "" : filter} bookings yet.
+            </div>
+          ) : (
+            <div className={styles.list}>
+              {filtered.map((b) => (
+                <DashboardBookingCard
+                  key={b._id}
+                  booking={b}
+                  onChange={handleChange}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

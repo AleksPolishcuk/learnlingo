@@ -4,91 +4,98 @@ import { useRouter } from "next/navigation";
 import { Booking } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
 import ReservationCard from "@/components/ReservationCard/ReservationCard";
-import SkeletonCard from "@/components/SkeletonCard/SkeletonCard";
 import api from "@/lib/api";
 import styles from "./page.module.css";
 
+type FilterTab = "all" | "pending" | "confirmed" | "completed" | "cancelled";
+
 export default function ReservationsPage() {
   const router = useRouter();
-  const { isAuth, loading, showToast } = useAuthContext();
+  const { user, isAuth, loading: authLoading } = useAuthContext();
 
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [fetching, setFetching] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FilterTab>("all");
 
   useEffect(() => {
-    if (!loading && !isAuth) router.replace("/teachers");
-  }, [loading, isAuth, router]);
+    if (authLoading) return;
+    if (!isAuth) router.replace("/teachers");
+    if (user?.role === "business") router.replace("/dashboard");
+  }, [isAuth, user, authLoading, router]);
 
   useEffect(() => {
-    if (!isAuth) return;
-
+    if (!isAuth || user?.role === "business") return;
     api
       .get("/bookings")
-      .then(({ data }) => setBookings(data.bookings))
-      .catch(() => setBookings([]))
-      .finally(() => setFetching(false));
-  }, [isAuth]);
+      .then(({ data }) => {
+        setBookings(data.bookings);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [isAuth, user]);
 
-  const handleCancel = async (id: string) => {
-    try {
-      await api.delete(`/bookings/${id}`);
-      setBookings((prev) => prev.filter((b) => b._id !== id));
-      showToast("Booking cancelled.");
-    } catch (err: any) {
-      showToast(err?.message || "Failed to cancel booking", "error");
-    }
-  };
-
-  const handleUpdate = (updated: Booking) => {
+  const handleChange = (updated: Booking) =>
     setBookings((prev) =>
       prev.map((b) => (b._id === updated._id ? updated : b)),
     );
-    showToast("Reservation updated!");
+
+  const handleRemove = (id: string) =>
+    setBookings((prev) => prev.filter((b) => b._id !== id));
+
+  const counts = {
+    all: bookings.length,
+    pending: bookings.filter((b) => b.teacherStatus === "pending").length,
+    confirmed: bookings.filter((b) => b.teacherStatus === "confirmed").length,
+    completed: bookings.filter((b) => b.teacherStatus === "completed").length,
+    cancelled: bookings.filter((b) => b.teacherStatus === "cancelled").length,
   };
 
-  if (loading || !isAuth) return null;
+  const filtered =
+    filter === "all"
+      ? bookings
+      : bookings.filter((b) => b.teacherStatus === filter);
+
+  if (authLoading) return null;
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.heading}>My Reservations</h1>
+      <h1 className={styles.pageTitle}>My Reservations</h1>
 
-      {fetching ? (
-        <div className={styles.list}>
-          {[...Array(4)].map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : bookings.length === 0 ? (
-        <div className={styles.empty}>
-          <svg
-            className={styles.emptyIcon}
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <use
-              href="/sprite.svg#icon-calendar-svg"
-              xlinkHref="/sprite.svg#icon-calendar-svg"
-            />
-          </svg>
-          <p className={styles.emptyTitle}>No bookings yet</p>
-          <p className={styles.emptyText}>
-            Book a trial lesson with a teacher to see your reservations here.
-          </p>
+      <div className={styles.filterTabs}>
+        {(
+          [
+            "all",
+            "pending",
+            "confirmed",
+            "completed",
+            "cancelled",
+          ] as FilterTab[]
+        ).map((f) => (
           <button
-            className={styles.goBtn}
-            onClick={() => router.push("/teachers")}
+            key={f}
+            className={`${styles.filterTab} ${filter === f ? styles.filterTabActive : ""}`}
+            onClick={() => setFilter(f)}
           >
-            Find a Teacher
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+            <span className={styles.filterCount}>{counts[f]}</span>
           </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className={styles.loading}>Loading reservations…</div>
+      ) : filtered.length === 0 ? (
+        <div className={styles.empty}>
+          <p>No {filter === "all" ? "" : filter} reservations.</p>
         </div>
       ) : (
         <div className={styles.list}>
-          {bookings.map((b) => (
+          {filtered.map((b) => (
             <ReservationCard
               key={b._id}
               booking={b}
-              onCancel={handleCancel}
-              onUpdate={handleUpdate}
+              onChange={handleChange}
+              onRemove={handleRemove}
             />
           ))}
         </div>

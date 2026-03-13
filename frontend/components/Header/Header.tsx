@@ -1,35 +1,26 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { User } from "@/types";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthContext } from "@/context/AuthContext";
+import Modal from "@/components/Modal/Modal";
+import ProfileModal from "@/components/ProfileModal/ProfileModal";
+import NotificationBell from "@/components/NotificationBell/NotificationBell";
 import UserAvatar from "@/components/UserAvatar/UserAvatar";
 import styles from "./Header.module.css";
 
-interface NavbarProps {
-  user: User | null;
-  onLogin: () => void;
-  onRegister: () => void;
-  onLogout: () => void;
-  onProfile: () => void;
-}
+export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuth, logout, openLogin, openRegister } = useAuthContext();
 
-const BASE_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/teachers", label: "Teachers" },
-];
-
-export default function Navbar({
-  user,
-  onLogin,
-  onRegister,
-  onLogout,
-  onProfile,
-}: NavbarProps) {
+  const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
 
+  const isBusiness = user?.role === "business";
+
+  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -40,120 +31,161 @@ export default function Navbar({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const privateLinks =
-    user?.role === "business"
-      ? [
-          { href: "/favorites", label: "Favorites" },
-          { href: "/dashboard", label: "Dashboard" },
-        ]
-      : [
-          { href: "/favorites", label: "Favorites" },
-          { href: "/reservations", label: "Reservations" },
-        ];
+  const BASE_LINKS = [
+    { href: "/", label: "Home" },
+    { href: "/teachers", label: "Teachers" },
+  ];
+
+  const privateLinks = isBusiness
+    ? [
+        { href: "/favorites", label: "Favorites" },
+        { href: "/dashboard", label: "Dashboard" },
+      ]
+    : [
+        { href: "/favorites", label: "Favorites" },
+        { href: "/reservations", label: "Reservations" },
+      ];
 
   const allLinks = user ? [...BASE_LINKS, ...privateLinks] : BASE_LINKS;
 
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    router.push("/");
+  };
+
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.container}>
-        <Link href="/" className={styles.logo} aria-label="LearnLingo">
-          <svg className={styles.logoIcon} aria-hidden="true">
-            <use href="/sprite.svg#icon-Logo" />
-          </svg>
-        </Link>
+    <>
+      <nav className={styles.navbar}>
+        <div className={styles.container}>
+          {/* ── Logo ──────────────────────────────────────────────────── */}
+          <Link href="/" className={styles.logo} aria-label="LearnLingo">
+            <svg className={styles.logoIcon} aria-hidden="true">
+              <use href="/sprite.svg#icon-Logo" />
+            </svg>
+          </Link>
 
-        <div className={styles.nav}>
-          {allLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ""}`}
-            >
-              {label}
-            </Link>
-          ))}
-        </div>
+          {/* ── Nav links ─────────────────────────────────────────────── */}
+          <div className={styles.nav}>
+            {allLinks.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ""}`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
 
-        <div className={styles.actions}>
-          {!user ? (
-            <>
-              <button className={styles.btnLogin} onClick={onLogin}>
-                <svg className={styles.iconLogIn} aria-hidden="true">
-                  <use href="/sprite.svg#icon-log-in-01" />
-                </svg>
-                Log in
-              </button>
-              <button className={styles.btnRegister} onClick={onRegister}>
-                Registration
-              </button>
-            </>
-          ) : (
-            <div ref={menuRef} className={styles.userMenu}>
-              <div className={styles.userActions}>
-                <button
-                  onClick={() => setMenuOpen((p) => !p)}
-                  style={{ border: "none", background: "none", padding: 0 }}
-                >
-                  <UserAvatar user={user} size={42} />
-                </button>
-                <button className={styles.btnLogout} onClick={onLogout}>
+          {/* ── Right-side actions ────────────────────────────────────── */}
+          <div className={styles.actions}>
+            {!user ? (
+              <>
+                <button className={styles.btnLogin} onClick={openLogin}>
                   <svg className={styles.iconLogIn} aria-hidden="true">
                     <use href="/sprite.svg#icon-log-in-01" />
                   </svg>
-                  Logout
+                  Log in
                 </button>
-              </div>
+                <button className={styles.btnRegister} onClick={openRegister}>
+                  Registration
+                </button>
+              </>
+            ) : (
+              <div ref={menuRef} className={styles.userMenu}>
+                <div className={styles.userActions}>
+                  {/* Notification bell — sits before the avatar */}
+                  <NotificationBell />
 
-              {menuOpen && (
-                <div className={styles.dropdown}>
-                  <div className={styles.dropdownHeader}>
-                    <div className={styles.dropdownName}>{user.name}</div>
-                    <div className={styles.dropdownRole}>
-                      {user.role === "business" ? "Teacher" : "Student"}
-                    </div>
-                  </div>
+                  {/* Avatar opens the dropdown */}
                   <button
-                    className={styles.dropdownItem}
-                    onClick={() => {
-                      onProfile();
-                      setMenuOpen(false);
+                    style={{
+                      border: "none",
+                      background: "none",
+                      padding: 0,
+                      cursor: "pointer",
                     }}
+                    onClick={() => setMenuOpen((p) => !p)}
+                    aria-label="Account menu"
                   >
-                    <svg className={styles.iconEdit} aria-hidden="true">
-                      <use href="/sprite.svg#icon-pencil" />
-                    </svg>
-                    Edit Profile
+                    <UserAvatar user={user} size={42} />
                   </button>
-                  {user.role === "business" && (
-                    <Link
-                      href="/dashboard"
-                      className={styles.dropdownItem}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <svg className={styles.iconEdit} aria-hidden="true">
-                        <use href="/sprite.svg#icon-calendar" />
-                      </svg>
-                      Lesson Dashboard
-                    </Link>
-                  )}
-                  {user.role === "client" && (
-                    <Link
-                      href="/reservations"
-                      className={styles.dropdownItem}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <svg className={styles.iconEdit} aria-hidden="true">
-                        <use href="/sprite.svg#icon-calendar" />
-                      </svg>
-                      My Reservations
-                    </Link>
-                  )}
+
+                  {/* Logout button */}
+                  <button className={styles.btnLogout} onClick={handleLogout}>
+                    <svg className={styles.iconLogIn} aria-hidden="true">
+                      <use href="/sprite.svg#icon-log-in-01" />
+                    </svg>
+                    Logout
+                  </button>
                 </div>
-              )}
-            </div>
-          )}
+
+                {/* ── Dropdown menu ──────────────────────────────────── */}
+                {menuOpen && (
+                  <div className={styles.dropdown}>
+                    <div className={styles.dropdownHeader}>
+                      <div className={styles.dropdownName}>{user.name}</div>
+                      <div className={styles.dropdownRole}>
+                        {isBusiness ? "Teacher" : "Student"}
+                      </div>
+                    </div>
+
+                    {/* Profile / Ads */}
+                    <button
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        setProfileOpen(true);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      <svg className={styles.iconEdit} aria-hidden="true">
+                        <use href="/sprite.svg#icon-pencil" />
+                      </svg>
+                      {isBusiness ? "Profile & Ads" : "Edit Profile"}
+                    </button>
+
+                    {/* Business-only: Dashboard */}
+                    {isBusiness && (
+                      <Link
+                        href="/dashboard"
+                        className={styles.dropdownItem}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <svg className={styles.iconEdit} aria-hidden="true">
+                          <use href="/sprite.svg#icon-calendar" />
+                        </svg>
+                        Lesson Dashboard
+                      </Link>
+                    )}
+
+                    {/* Student-only: Reservations */}
+                    {!isBusiness && (
+                      <Link
+                        href="/reservations"
+                        className={styles.dropdownItem}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <svg className={styles.iconEdit} aria-hidden="true">
+                          <use href="/sprite.svg#icon-calendar" />
+                        </svg>
+                        My Reservations
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Profile modal */}
+      <Modal open={profileOpen} onClose={() => setProfileOpen(false)} wide>
+        {user && (
+          <ProfileModal user={user} onClose={() => setProfileOpen(false)} />
+        )}
+      </Modal>
+    </>
   );
 }
