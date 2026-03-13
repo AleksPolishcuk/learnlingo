@@ -1,95 +1,97 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = new mongoose.Schema(
+const bookingSchema = new mongoose.Schema(
   {
-    student: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    reviewer_name: { type: String, required: true },
-    reviewer_rating: { type: Number, required: true, min: 1, max: 5 },
-    comment: { type: String, required: true, trim: true, maxlength: 1000 },
-    booking: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Booking",
-      required: true,
-    },
-  },
-  { timestamps: true },
-);
-
-const teacherAdSchema = new mongoose.Schema(
-  {
-    owner: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    name: { type: String, required: true, trim: true },
-    surname: { type: String, required: true, trim: true },
-
-    languages: {
-      type: [String],
-      required: [true, "At least one language is required"],
-      validate: {
-        validator: (v) => Array.isArray(v) && v.length > 0,
-        message: "At least one language is required",
-      },
+    teacher: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Teacher",
+      default: null,
+    },
+    teacherAd: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TeacherAd",
+      default: null,
+    },
+    teacherUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
 
-    levels: {
-      type: [String],
-      required: [true, "At least one level is required"],
+    reason: {
+      type: String,
+      required: true,
       enum: [
-        "A1 Beginner",
-        "A2 Elementary",
-        "B1 Intermediate",
-        "B2 Upper-Intermediate",
-        "C1 Advanced",
-        "C2 Proficient",
+        "Career and business",
+        "Lesson for kids",
+        "Living abroad",
+        "Exams and coursework",
+        "Culture, travel or hobby",
       ],
     },
-
-    price_per_hour: {
-      type: Number,
-      required: [true, "Price per hour is required"],
-      min: [1, "Price must be at least $1"],
+    fullName: { type: String, required: true, trim: true },
+    email: {
+      type: String,
+      required: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email"],
+    },
+    phone: { type: String, required: true, trim: true },
+    scheduledAt: {
+      type: Date,
+      required: [true, "Scheduled date/time is required"],
     },
 
-    avatar_url: { type: String, default: "" },
-    lesson_info: { type: String, default: "" },
-    conditions: { type: [String], default: [] },
-    experience: { type: String, default: "" },
+    teacherStatus: {
+      type: String,
+      enum: ["pending", "confirmed", "cancelled", "completed"],
+      default: "pending",
+    },
 
-    rating: { type: Number, default: 0, min: 0, max: 5 },
+    cancelledBy: {
+      type: String,
+      enum: ["student", "teacher", null],
+      default: null,
+    },
 
-    reviews: { type: [reviewSchema], default: [] },
+    teacherMessage: { type: String, default: "" },
 
-    lessons_done: { type: Number, default: 0, min: 0 },
-    total_earned: { type: Number, default: 0, min: 0 },
+    earnedAmount: { type: Number, default: 0 },
 
-    isActive: { type: Boolean, default: true },
+    reviewLeft: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
 
-teacherAdSchema.index({ owner: 1 });
-teacherAdSchema.index({ languages: 1 });
-teacherAdSchema.index({ levels: 1 });
-teacherAdSchema.index({ price_per_hour: 1 });
-teacherAdSchema.index({ rating: -1 });
-teacherAdSchema.index({ isActive: 1 });
+bookingSchema.index(
+  { teacherAd: 1, scheduledAt: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      teacherAd: { $ne: null },
+      teacherStatus: { $nin: ["cancelled"] },
+    },
+  },
+);
 
-teacherAdSchema.methods.recalcRating = async function () {
-  if (this.reviews.length === 0) {
-    this.rating = 0;
-  } else {
-    const sum = this.reviews.reduce((acc, r) => acc + r.reviewer_rating, 0);
-    this.rating = Math.round((sum / this.reviews.length) * 10) / 10;
-  }
-  await this.save();
-};
+bookingSchema.index(
+  { teacher: 1, scheduledAt: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      teacher: { $ne: null },
+      teacherStatus: { $nin: ["cancelled"] },
+    },
+  },
+);
 
-module.exports = mongoose.model("TeacherAd", teacherAdSchema);
+bookingSchema.index({ user: 1, scheduledAt: -1 });
+bookingSchema.index({ teacherUser: 1, scheduledAt: -1 });
+bookingSchema.index({ teacherStatus: 1 });
+
+module.exports = mongoose.model("Booking", bookingSchema);
