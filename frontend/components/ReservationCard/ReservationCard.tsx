@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
-import { Booking } from "@/types";
-import TimePicker from "@/components/TimePicker/TimePicker";
+import { Booking, TeacherAd, Teacher } from "@/types";
+import Modal from "@/components/Modal/Modal";
+import ReviewForm from "@/components/ReviewForm/ReviewForm";
 import api from "@/lib/api";
 import styles from "./ReservationCard.module.css";
 
@@ -13,299 +14,290 @@ const REASONS = [
   "Culture, travel or hobby",
 ];
 
-function timeFromISO(iso?: string): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
-function dateFromISO(iso?: string): string {
-  if (!iso) return "";
-  return new Date(iso).toISOString().split("T")[0];
-}
-
 interface Props {
   booking: Booking;
-  onCancel: (id: string) => void;
-  onUpdate: (updated: Booking) => void;
+  onChange: (updated: Booking) => void;
+  onRemove: (id: string) => void;
 }
 
-function getTeacherInfo(b: Booking) {
-  const t = b.teacher || b.teacherAd;
-  if (!t) return { name: "Unknown Teacher", avatar_url: "" };
-  return { name: `${t.name} ${t.surname}`, avatar_url: t.avatar_url ?? "" };
+function getTeacher(b: Booking): {
+  name: string;
+  surname: string;
+  avatar_url?: string;
+  price_per_hour?: number;
+} | null {
+  if (b.teacherAd && typeof b.teacherAd === "object")
+    return b.teacherAd as TeacherAd;
+  if (b.teacher && typeof b.teacher === "object") return b.teacher as Teacher;
+  return null;
 }
 
 export default function ReservationCard({
-  booking: b,
-  onCancel,
-  onUpdate,
+  booking,
+  onChange,
+  onRemove,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [imgErr, setImgErr] = useState(false);
+  const [error, setError] = useState("");
+  const [reviewOpen, setReviewOpen] = useState(false);
 
-  const [fullName, setFullName] = useState(b.fullName);
-  const [email, setEmail] = useState(b.email);
-  const [phone, setPhone] = useState(b.phone);
-  const [reason, setReason] = useState(b.reason);
-  const [date, setDate] = useState(dateFromISO(b.scheduledAt));
-  const [time, setTime] = useState(timeFromISO(b.scheduledAt));
+  const [reason, setReason] = useState(booking.reason);
+  const [fullName, setFullName] = useState(booking.fullName);
+  const [email, setEmail] = useState(booking.email);
+  const [phone, setPhone] = useState(booking.phone);
+  const [dateVal, setDateVal] = useState(
+    booking.scheduledAt ? booking.scheduledAt.slice(0, 10) : "",
+  );
+  const [timeVal, setTimeVal] = useState(
+    booking.scheduledAt ? booking.scheduledAt.slice(11, 16) : "",
+  );
 
-  const { name: teacherName, avatar_url } = getTeacherInfo(b);
-
-  const effectiveStatus =
-    b.teacherStatus ?? (b.status === "cancelled" ? "cancelled" : "pending");
-  const isPending = effectiveStatus === "pending";
-  const isConfirmed = effectiveStatus === "confirmed";
-  const isCancelled = effectiveStatus === "cancelled";
+  const teacher = getTeacher(booking);
+  const status = booking.teacherStatus;
+  const isPending = status === "pending";
+  const isConfirmed = status === "confirmed";
+  const isCompleted = status === "completed";
+  const isCancelled = status === "cancelled";
 
   const handleSave = async () => {
+    setError("");
     try {
       setSaving(true);
-      let scheduledAt: string | undefined;
-      if (date) {
-        const [hh, mm] = time ? time.split(":").map(Number) : [9, 0];
-        const d = new Date(date);
-        d.setHours(hh, mm, 0, 0);
-        scheduledAt = d.toISOString();
-      }
-      const { data } = await api.patch(`/bookings/${b._id}`, {
+      const scheduledAt = dateVal
+        ? `${dateVal}T${timeVal || "00:00"}:00.000Z`
+        : undefined;
+      const { data } = await api.patch(`/bookings/${booking._id}`, {
+        reason,
         fullName,
         email,
         phone,
-        reason,
-        scheduledAt,
+        ...(scheduledAt ? { scheduledAt } : {}),
       });
-      onUpdate(data.booking);
+      onChange(data.booking);
       setEditing(false);
-    } catch {
+    } catch (e: any) {
+      setError(e.response?.data?.message || e.message);
     } finally {
       setSaving(false);
     }
   };
 
-  const discard = () => {
-    setFullName(b.fullName);
-    setEmail(b.email);
-    setPhone(b.phone);
-    setReason(b.reason);
-    setDate(dateFromISO(b.scheduledAt));
-    setTime(timeFromISO(b.scheduledAt));
-    setEditing(false);
+  const handleCancel = async () => {
+    if (!confirm("Cancel this booking?")) return;
+    try {
+      const { data } = await api.delete(`/bookings/${booking._id}`);
+      onChange(data.booking);
+    } catch (e: any) {
+      alert(e.response?.data?.message || e.message);
+    }
   };
 
-  const bookedDate = new Date(b.createdAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const scheduledDisplay = b.scheduledAt
-    ? new Date(b.scheduledAt).toLocaleString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
-
-  const today = new Date().toISOString().split("T")[0];
+  const statusConfig = {
+    pending: { label: "Pending", cls: styles.statusPending },
+    confirmed: { label: "Confirmed", cls: styles.statusConfirmed },
+    completed: { label: "Completed", cls: styles.statusCompleted },
+    cancelled: { label: "Cancelled", cls: styles.statusCancelled },
+  }[status];
 
   return (
-    <div className={styles.card}>
-      <div className={styles.inner}>
-        <div className={styles.avatarWrap}>
-          <div className={styles.avatarRing}>
-            {avatar_url && !imgErr ? (
-              <img
-                src={avatar_url}
-                alt={teacherName}
-                className={styles.avatarImg}
-                onError={() => setImgErr(true)}
-              />
-            ) : (
-              <span className={styles.avatarFallback}>
-                {teacherName[0] ?? "?"}
+    <>
+      <div className={styles.card}>
+        <div className={styles.inner}>
+          <div className={styles.avatarWrap}>
+            <div className={styles.avatarRing}>
+              {teacher?.avatar_url ? (
+                <img
+                  src={teacher.avatar_url}
+                  alt={teacher.name}
+                  className={styles.avatarImg}
+                />
+              ) : (
+                <span className={styles.avatarFallback}>
+                  {teacher?.name?.[0] ?? "?"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className={styles.content}>
+            <div className={styles.topRow}>
+              <div>
+                <div className={styles.categoryLabel}>Languages</div>
+                <h3 className={styles.name}>
+                  {teacher ? `${teacher.name} ${teacher.surname}` : "Teacher"}
+                </h3>
+              </div>
+              <span className={`${styles.statusBadge} ${statusConfig.cls}`}>
+                {statusConfig.label}
               </span>
+            </div>
+
+            {booking.scheduledAt && (
+              <div className={styles.timeBadge}>
+                🗓 {new Date(booking.scheduledAt).toLocaleString()}
+              </div>
+            )}
+
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Reason: </span>
+              <span className={styles.infoValue}>{booking.reason}</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Contact: </span>
+              <span className={styles.infoValue}>
+                {booking.fullName} · {booking.email} · {booking.phone}
+              </span>
+            </div>
+
+            {booking.teacherMessage && (
+              <div
+                className={`${styles.teacherMsg} ${isConfirmed ? styles.teacherMsgConfirmed : isCompleted ? styles.teacherMsgCompleted : styles.teacherMsgCancelled}`}
+              >
+                <strong>Teacher's note: </strong>
+                {booking.teacherMessage}
+              </div>
+            )}
+
+            {isCancelled && booking.cancelledBy && (
+              <div className={styles.cancelledBy}>
+                Cancelled by{" "}
+                {booking.cancelledBy === "teacher" ? "teacher" : "you"}
+              </div>
+            )}
+
+            {isCompleted && booking.earnedAmount > 0 && (
+              <div className={styles.completedNote}>
+                💳 Lesson fee: <strong>${booking.earnedAmount}</strong> credited
+                to the teacher.
+              </div>
+            )}
+
+            <div className={styles.actions}>
+              {isPending && (
+                <>
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => setEditing((p) => !p)}
+                  >
+                    {editing ? "Close" : "Edit"}
+                  </button>
+                  <button className={styles.cancelBtn} onClick={handleCancel}>
+                    Cancel Booking
+                  </button>
+                </>
+              )}
+
+              {isCompleted && !booking.reviewLeft && (
+                <button
+                  className={styles.reviewBtn}
+                  onClick={() => setReviewOpen(true)}
+                >
+                  ⭐ Leave a Review
+                </button>
+              )}
+
+              {isCompleted && booking.reviewLeft && (
+                <span className={styles.reviewedBadge}>
+                  ✅ Review submitted
+                </span>
+              )}
+            </div>
+
+            {editing && isPending && (
+              <div className={styles.editPanel}>
+                <div className={styles.editTitle}>Edit Booking</div>
+                {error && <div className={styles.editError}>{error}</div>}
+
+                <div className={styles.editGrid}>
+                  <div>
+                    <label className={styles.fieldLabel}>Date</label>
+                    <input
+                      type="date"
+                      className={styles.fieldInput}
+                      value={dateVal}
+                      min={new Date().toISOString().slice(0, 10)}
+                      onChange={(e) => setDateVal(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className={styles.fieldLabel}>Time (optional)</label>
+                    <input
+                      type="time"
+                      className={styles.fieldInput}
+                      value={timeVal}
+                      onChange={(e) => setTimeVal(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.fieldFull}>
+                    <label className={styles.fieldLabel}>Reason</label>
+                    <select
+                      className={styles.reasonSelect}
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                    >
+                      {REASONS.map((r) => (
+                        <option key={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={styles.fieldLabel}>Full Name</label>
+                    <input
+                      className={styles.fieldInput}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className={styles.fieldLabel}>Email</label>
+                    <input
+                      className={styles.fieldInput}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.fieldFull}>
+                    <label className={styles.fieldLabel}>Phone</label>
+                    <input
+                      className={styles.fieldInput}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.editActions}>
+                  <button
+                    className={styles.discardBtn}
+                    onClick={() => setEditing(false)}
+                  >
+                    Discard
+                  </button>
+                  <button
+                    className={styles.saveBtn}
+                    onClick={handleSave}
+                    disabled={saving}
+                  >
+                    {saving ? "Saving…" : "Save Changes"}
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
-
-        <div className={styles.content}>
-          <div className={styles.topRow}>
-            <div>
-              <div className={styles.categoryLabel}>Reservation</div>
-              <h3 className={styles.name}>{teacherName}</h3>
-            </div>
-
-            <div className={styles.metaRow}>
-              <span className={styles.metaItem}>
-                <svg className={styles.iconClock} aria-hidden="true">
-                  <use href="/sprite.svg#icon-calendar" />
-                </svg>
-                Booked {bookedDate}
-              </span>
-
-              <span
-                className={`${styles.statusBadge} ${
-                  isConfirmed
-                    ? styles.statusConfirmed
-                    : isCancelled
-                      ? styles.statusCancelled
-                      : styles.statusPending
-                }`}
-              >
-                {isConfirmed
-                  ? "Confirmed ✓"
-                  : isCancelled
-                    ? "Cancelled"
-                    : "Pending"}
-              </span>
-            </div>
-          </div>
-
-          {b.teacherMessage && (
-            <div
-              className={`${styles.teacherMsg} ${
-                isConfirmed
-                  ? styles.teacherMsgConfirmed
-                  : styles.teacherMsgCancelled
-              }`}
-            >
-              <strong>Teacher:</strong> {b.teacherMessage}
-            </div>
-          )}
-
-          {isCancelled && b.cancelledBy && (
-            <p className={styles.cancelledBy}>
-              Cancelled by{" "}
-              <strong>
-                {b.cancelledBy === "teacher" ? "the teacher" : "you"}
-              </strong>
-            </p>
-          )}
-
-          <p className={styles.infoRow}>
-            <span className={styles.infoLabel}>Goal: </span>
-            <span className={styles.infoValue}>{b.reason}</span>
-          </p>
-          <p className={styles.infoRow}>
-            <span className={styles.infoLabel}>Contact: </span>
-            <span className={styles.infoValue}>
-              {b.fullName} · {b.email} · {b.phone}
-            </span>
-          </p>
-
-          {scheduledDisplay && (
-            <span className={styles.timeBadge}>
-              <svg className={styles.iconClock} aria-hidden="true">
-                <use href="/sprite.svg#icon-Iconclock" />
-              </svg>
-              {scheduledDisplay}
-            </span>
-          )}
-
-          {isPending && (
-            <div className={styles.actions}>
-              <button
-                className={styles.editBtn}
-                onClick={() => setEditing((p) => !p)}
-              >
-                {editing ? "Close editor" : "Edit"}
-              </button>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => onCancel(b._id)}
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          {editing && isPending && (
-            <div className={styles.editPanel}>
-              <div className={styles.editTitle}>Edit reservation</div>
-
-              <div className={styles.editGrid}>
-                <div>
-                  <label className={styles.fieldLabel}>Full Name</label>
-                  <input
-                    className={styles.fieldInput}
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className={styles.fieldLabel}>Email</label>
-                  <input
-                    type="email"
-                    className={styles.fieldInput}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className={styles.fieldLabel}>Phone</label>
-                  <input
-                    className={styles.fieldInput}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className={styles.fieldLabel}>Lesson Date</label>
-                  <input
-                    type="date"
-                    className={styles.fieldInput}
-                    value={date}
-                    min={today}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className={styles.fieldLabel}>Meeting Time</label>
-                  <TimePicker value={time} onChange={setTime} />
-                </div>
-
-                <div className={styles.fieldFull}>
-                  <label className={styles.fieldLabel}>Reason</label>
-                  <select
-                    className={styles.reasonSelect}
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                  >
-                    {REASONS.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.editActions}>
-                <button className={styles.discardBtn} onClick={discard}>
-                  Discard
-                </button>
-                <button
-                  className={styles.saveBtn}
-                  onClick={handleSave}
-                  disabled={saving}
-                >
-                  {saving ? "Saving…" : "Save changes"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
+
+      <Modal open={reviewOpen} onClose={() => setReviewOpen(false)}>
+        <ReviewForm
+          booking={booking}
+          onReviewed={() => {
+            setReviewOpen(false);
+            onChange({ ...booking, reviewLeft: true });
+          }}
+          onClose={() => setReviewOpen(false)}
+        />
+      </Modal>
+    </>
   );
 }

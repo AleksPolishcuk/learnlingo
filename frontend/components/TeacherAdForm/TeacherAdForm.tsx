@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import api from "@/lib/api";
 import { TeacherAd } from "@/types";
+import api from "@/lib/api";
 import styles from "./TeacherAdForm.module.css";
 
 const ALL_LANGUAGES = [
@@ -31,11 +31,7 @@ interface Props {
   onDeleted?: () => void;
 }
 
-export default function TeacherAdForm({
-  existingAd,
-  onSaved,
-  onDeleted,
-}: Props) {
+export default function TeacherAdForm({ existingAd, onSaved }: Props) {
   const [name, setName] = useState(existingAd?.name ?? "");
   const [surname, setSurname] = useState(existingAd?.surname ?? "");
   const [languages, setLanguages] = useState<string[]>(
@@ -47,14 +43,13 @@ export default function TeacherAdForm({
   const [lessonInfo, setLessonInfo] = useState(existingAd?.lesson_info ?? "");
   const [conditions, setConditions] = useState<string>(
     Array.isArray(existingAd?.conditions)
-      ? existingAd.conditions.join("\n")
+      ? existingAd!.conditions.join("\n")
       : "",
   );
   const [experience, setExperience] = useState(existingAd?.experience ?? "");
   const [isActive, setIsActive] = useState(existingAd?.isActive ?? true);
 
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -76,11 +71,8 @@ export default function TeacherAdForm({
     setIsActive(existingAd.isActive);
   }, [existingAd]);
 
-  const toggleLang = (l: string) =>
-    setLanguages((p) => (p.includes(l) ? p.filter((x) => x !== l) : [...p, l]));
-
-  const toggleLevel = (l: string) =>
-    setLevels((p) => (p.includes(l) ? p.filter((x) => x !== l) : [...p, l]));
+  const toggle = (list: string[], val: string, setter: (v: string[]) => void) =>
+    setter(list.includes(val) ? list.filter((x) => x !== val) : [...list, val]);
 
   const handleSave = async () => {
     setError("");
@@ -122,40 +114,22 @@ export default function TeacherAdForm({
 
     try {
       setSaving(true);
-      let res;
-      if (existingAd) {
-        res = await api.put(`/teacher-ads/${existingAd._id}`, payload);
-      } else {
-        res = await api.post("/teacher-ads", payload);
-      }
-      setSuccess("Ad saved successfully!");
+      const res = existingAd
+        ? await api.put(`/teacher-ads/${existingAd._id}`, payload)
+        : await api.post("/teacher-ads", payload);
+      setSuccess("Ad saved!");
       onSaved(res.data.ad);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (e: any) {
+      setError(e.response?.data?.message || e.message);
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!existingAd) return;
-    if (!window.confirm("Delete your teacher ad? This cannot be undone."))
-      return;
-    try {
-      setDeleting(true);
-      await api.delete(`/teacher-ads/${existingAd._id}`);
-      onDeleted?.();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setDeleting(false);
     }
   };
 
   return (
     <div className={styles.form}>
       <div className={styles.sectionTitle}>
-        {existingAd ? "Edit Your Teacher Ad" : "Create Your Teacher Ad"}
+        {existingAd ? "Edit Ad" : "Create New Ad"}
       </div>
 
       {error && <div className={styles.errorBox}>{error}</div>}
@@ -203,14 +177,14 @@ export default function TeacherAdForm({
       </div>
 
       <div className={styles.fieldFull}>
-        <label className={styles.label}>Languages You Teach *</label>
+        <label className={styles.label}>Languages *</label>
         <div className={styles.pills}>
           {ALL_LANGUAGES.map((l) => (
             <button
               key={l}
               type="button"
               className={`${styles.pill} ${languages.includes(l) ? styles.pillActive : ""}`}
-              onClick={() => toggleLang(l)}
+              onClick={() => toggle(languages, l, setLanguages)}
             >
               {l}
             </button>
@@ -219,14 +193,14 @@ export default function TeacherAdForm({
       </div>
 
       <div className={styles.fieldFull}>
-        <label className={styles.label}>Levels You Teach *</label>
+        <label className={styles.label}>Levels *</label>
         <div className={styles.pills}>
           {ALL_LEVELS.map((l) => (
             <button
               key={l}
               type="button"
               className={`${styles.pill} ${levels.includes(l) ? styles.pillActive : ""}`}
-              onClick={() => toggleLevel(l)}
+              onClick={() => toggle(levels, l, setLevels)}
             >
               {l}
             </button>
@@ -264,7 +238,7 @@ export default function TeacherAdForm({
           className={styles.textarea}
           value={experience}
           onChange={(e) => setExperience(e.target.value)}
-          placeholder="Tell students about your background and teaching approach…"
+          placeholder="Tell students about your background…"
           rows={4}
         />
       </div>
@@ -282,16 +256,6 @@ export default function TeacherAdForm({
       </div>
 
       <div className={styles.actions}>
-        {existingAd && (
-          <button
-            type="button"
-            className={styles.deleteBtn}
-            onClick={handleDelete}
-            disabled={deleting}
-          >
-            {deleting ? "Deleting…" : "Delete Ad"}
-          </button>
-        )}
         <button
           type="button"
           className={styles.saveBtn}

@@ -1,62 +1,53 @@
 .card {
   background: var(--card-bg);
   border-radius: var(--radius-xl);
-  padding: 24px 28px;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
-  animation: slideUp 0.3s ease both;
+  border-left-width: 4px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s;
+  animation: slideUp 0.3s ease both;
 }
 .card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
-.cardConfirmed {
-  border-left: 4px solid #38cd3e;
+
+.borderPending {
+  border-left-color: #f59e0b;
 }
-.cardCancelled {
-  border-left: 4px solid var(--red);
-  opacity: 0.85;
+.borderConfirmed {
+  border-left-color: #22c55e;
+}
+.borderCompleted {
+  border-left-color: #60a5fa;
+}
+.borderCancelled {
+  border-left-color: #f87171;
 }
 
 .header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
 }
 
 .studentInfo {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 2px;
 }
-
-.avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #e8a820);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 800;
-  color: #1a1a1a;
-  flex-shrink: 0;
-}
-
 .studentName {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
+  font-family: var(--font-display);
   color: var(--text);
 }
-
-.studentMeta {
+.studentEmail {
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 2px;
 }
 
 .badge {
@@ -64,7 +55,8 @@
   border-radius: 99px;
   font-size: 11px;
   font-weight: 700;
-  white-space: nowrap;
+  font-family: var(--font-body);
+  flex-shrink: 0;
 }
 .badgePending {
   background: #fff8e1;
@@ -76,6 +68,11 @@
   color: #1a7a3a;
   border: 1px solid #6ee7b7;
 }
+.badgeCompleted {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
 .badgeCancelled {
   background: var(--red-light);
   color: var(--red);
@@ -85,78 +82,77 @@
 .details {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 5px;
+  margin-bottom: 16px;
 }
 
-.detailItem {
+.detail {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: baseline;
+  gap: 8px;
   font-size: 13px;
-  color: var(--text-secondary);
 }
-
-.icon {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-  opacity: 0.6;
+.detailLabel {
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 72px;
 }
-
-.prevMsg {
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+.detailValue {
+  color: var(--text);
+}
+.earnedValue {
+  color: #16a34a;
+  font-weight: 800;
+}
+.reviewNote {
   font-size: 12px;
-  margin-bottom: 14px;
-}
-.prevMsgGreen {
-  background: #eafaf1;
-  color: #1a5c2a;
-  border-left: 3px solid #38cd3e;
-}
-.prevMsgRed {
-  background: var(--red-light);
-  color: #b91c1c;
-  border-left: 3px solid var(--red);
-}
-
-.error {
-  font-size: 12px;
-  color: var(--red);
-  margin-bottom: 10px;
+  color: #7a5800;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .confirmBtn {
-  padding: 10px 22px;
+  padding: 9px 20px;
   border-radius: var(--radius-sm);
   border: none;
-  background: #38cd3e;
+  background: #22c55e;
   color: #fff;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   font-family: var(--font-body);
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: background 0.15s;
 }
 .confirmBtn:hover {
-  opacity: 0.88;
+  background: #16a34a;
 }
-.confirmBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+
+.completeBtn {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: #60a5fa;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.completeBtn:hover {
+  background: #3b82f6;
 }
 
 .cancelBtn {
-  padding: 10px 22px;
+  padding: 9px 20px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid #ffcdd2;
+  border: 1.5px solid #fca5a5;
   background: var(--red-light);
   color: var(--red);
   font-size: 13px;
@@ -168,54 +164,52 @@
 .cancelBtn:hover {
   background: #ffd7d7;
 }
-.cancelBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
-.msgBox {
-  background: #fafafa;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  padding: 14px;
-  animation: fadeIn 0.15s ease both;
+.actionPanel {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeIn 0.2s ease both;
 }
-
+.actionError {
+  background: var(--red-light);
+  color: var(--red);
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 13px;
+}
 .msgLabel {
-  display: block;
   font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
 }
-
-.msgTextarea {
+.msgArea {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  border-radius: var(--radius-md);
   border: 1.5px solid var(--border);
   font-size: 13px;
   font-family: var(--font-body);
   color: var(--text);
-  background: var(--card-bg);
-  resize: none;
+  background: #fafafa;
   outline: none;
+  resize: vertical;
   box-sizing: border-box;
   transition: border-color 0.2s;
 }
-.msgTextarea:focus {
+.msgArea:focus {
   border-color: var(--accent);
 }
-
-.msgActions {
+.actionBtns {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
-  margin-top: 10px;
 }
-
 .discardBtn {
   padding: 9px 18px;
   border-radius: var(--radius-sm);
@@ -228,5 +222,45 @@
   cursor: pointer;
 }
 .discardBtn:hover {
-  background: #f0f0f0;
+  background: #f5f5f5;
+}
+.confirmActionBtn {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  font-family: var(--font-body);
+  cursor: pointer;
+  box-shadow: var(--shadow-accent);
+  transition: transform 0.15s;
+}
+.confirmActionBtn:hover {
+  transform: translateY(-1px);
+}
+.confirmActionBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+.confirmCancelBtn {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.confirmCancelBtn:hover {
+  background: #dc2626;
+}
+.confirmCancelBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }

@@ -6,180 +6,206 @@ import styles from "./DashboardBookingCard.module.css";
 
 interface Props {
   booking: Booking;
-  onUpdate: (updated: Booking) => void;
+  onChange: (updated: Booking) => void;
 }
 
-export default function DashboardBookingCard({ booking: b, onUpdate }: Props) {
+type Action = "confirm" | "cancel" | "complete" | null;
+
+export default function DashboardBookingCard({ booking, onChange }: Props) {
+  const [action, setAction] = useState<Action>(null);
   const [message, setMessage] = useState("");
-  const [showMsgBox, setShowMsgBox] = useState<"confirm" | "cancel" | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const isPending = b.teacherStatus === "pending";
-  const isConfirmed = b.teacherStatus === "confirmed";
-  const isCancelled = b.teacherStatus === "cancelled";
+  const student = typeof booking.user === "object" ? booking.user : null;
+  const teacher =
+    typeof booking.teacherAd === "object" ? booking.teacherAd : null;
+  const status = booking.teacherStatus;
 
-  const studentName =
-    typeof b.user === "object" && b.user !== null
-      ? (b.user as any).name
-      : b.fullName;
+  const isPending = status === "pending";
+  const isConfirmed = status === "confirmed";
 
-  const scheduledDisplay = b.scheduledAt
-    ? new Date(b.scheduledAt).toLocaleString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "Time not specified";
-
-  const bookedOn = new Date(b.createdAt).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  const handleAction = async (action: "confirm" | "cancel") => {
+  const handleSubmit = async () => {
+    if (!action) return;
+    setError("");
     try {
-      setLoading(true);
-      setError("");
-      const { data } = await api.patch(`/bookings/${b._id}/${action}`, {
-        message: message.trim(),
-      });
-      onUpdate(data.booking);
-      setShowMsgBox(null);
+      setSaving(true);
+      const url =
+        action === "confirm"
+          ? `/bookings/${booking._id}/confirm`
+          : action === "cancel"
+            ? `/bookings/${booking._id}/cancel`
+            : `/bookings/${booking._id}/complete`;
+
+      const { data } = await api.patch(url, { message });
+      onChange(data.booking);
+      setAction(null);
       setMessage("");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (e: any) {
+      setError(e.response?.data?.message || e.message);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  const statusBorderCls =
+    status === "pending"
+      ? styles.borderPending
+      : status === "confirmed"
+        ? styles.borderConfirmed
+        : status === "completed"
+          ? styles.borderCompleted
+          : styles.borderCancelled;
+
+  const statusLabel = {
+    pending: "Pending",
+    confirmed: "Confirmed",
+    completed: "Completed",
+    cancelled: "Cancelled",
+  }[status];
+
+  const statusBadgeCls = {
+    pending: styles.badgePending,
+    confirmed: styles.badgeConfirmed,
+    completed: styles.badgeCompleted,
+    cancelled: styles.badgeCancelled,
+  }[status];
+
   return (
-    <div
-      className={`${styles.card} ${isCancelled ? styles.cardCancelled : isConfirmed ? styles.cardConfirmed : ""}`}
-    >
+    <div className={`${styles.card} ${statusBorderCls}`}>
       <div className={styles.header}>
         <div className={styles.studentInfo}>
-          <div className={styles.avatar}>{b.fullName[0]?.toUpperCase()}</div>
-          <div>
-            <div className={styles.studentName}>{b.fullName}</div>
-            <div className={styles.studentMeta}>
-              {b.email} · {b.phone}
-            </div>
+          <div className={styles.studentName}>
+            {student?.name ?? booking.fullName}
+          </div>
+          <div className={styles.studentEmail}>
+            {student?.email ?? booking.email}
           </div>
         </div>
-
-        <span
-          className={`${styles.badge} ${
-            isConfirmed
-              ? styles.badgeConfirmed
-              : isCancelled
-                ? styles.badgeCancelled
-                : styles.badgePending
-          }`}
-        >
-          {isConfirmed ? "Confirmed ✓" : isCancelled ? "Cancelled" : "Pending"}
+        <span className={`${styles.badge} ${statusBadgeCls}`}>
+          {statusLabel}
         </span>
       </div>
 
       <div className={styles.details}>
-        <div className={styles.detailItem}>
-          <svg className={styles.icon} aria-hidden="true">
-            <use href="/sprite.svg#icon-Iconclock" />
-          </svg>
-          <span>{scheduledDisplay}</span>
+        {teacher && (
+          <div className={styles.detail}>
+            <span className={styles.detailLabel}>Ad</span>
+            <span className={styles.detailValue}>
+              {teacher.name} {teacher.surname}
+            </span>
+          </div>
+        )}
+        {booking.scheduledAt && (
+          <div className={styles.detail}>
+            <span className={styles.detailLabel}>Scheduled</span>
+            <span className={styles.detailValue}>
+              {new Date(booking.scheduledAt).toLocaleString()}
+            </span>
+          </div>
+        )}
+        <div className={styles.detail}>
+          <span className={styles.detailLabel}>Reason</span>
+          <span className={styles.detailValue}>{booking.reason}</span>
         </div>
-        <div className={styles.detailItem}>
-          <svg className={styles.icon} aria-hidden="true">
-            <use href="/sprite.svg#icon-calendar" />
-          </svg>
-          <span>Booked on {bookedOn}</span>
+        <div className={styles.detail}>
+          <span className={styles.detailLabel}>Phone</span>
+          <span className={styles.detailValue}>{booking.phone}</span>
         </div>
-        <div className={styles.detailItem}>
-          <strong>Goal:</strong>&nbsp;{b.reason}
-        </div>
+        {status === "completed" && booking.earnedAmount > 0 && (
+          <div className={styles.detail}>
+            <span className={styles.detailLabel}>Earned</span>
+            <span className={`${styles.detailValue} ${styles.earnedValue}`}>
+              💰 ${booking.earnedAmount}
+            </span>
+          </div>
+        )}
+        {booking.reviewLeft && (
+          <div className={styles.reviewNote}>⭐ Student left a review</div>
+        )}
       </div>
 
-      {/* Previous teacher message */}
-      {b.teacherMessage && (
-        <div
-          className={`${styles.prevMsg} ${isConfirmed ? styles.prevMsgGreen : styles.prevMsgRed}`}
-        >
-          Your message: <em>{b.teacherMessage}</em>
+      {(isPending || isConfirmed) && !action && (
+        <div className={styles.actions}>
+          {isPending && (
+            <button
+              className={styles.confirmBtn}
+              onClick={() => setAction("confirm")}
+            >
+              Confirm
+            </button>
+          )}
+          {isConfirmed && (
+            <button
+              className={styles.completeBtn}
+              onClick={() => setAction("complete")}
+            >
+              Mark Complete
+            </button>
+          )}
+          {(isPending || isConfirmed) && (
+            <button
+              className={styles.cancelBtn}
+              onClick={() => setAction("cancel")}
+            >
+              Cancel
+            </button>
+          )}
         </div>
       )}
 
-      {error && <p className={styles.error}>{error}</p>}
-
-      {/* Actions only when pending */}
-      {isPending && (
-        <>
-          {!showMsgBox ? (
-            <div className={styles.actions}>
-              <button
-                className={styles.confirmBtn}
-                onClick={() => setShowMsgBox("confirm")}
-              >
-                Confirm lesson
-              </button>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setShowMsgBox("cancel")}
-              >
-                Cancel lesson
-              </button>
-            </div>
-          ) : (
-            <div className={styles.msgBox}>
-              <label className={styles.msgLabel}>
-                Optional message to student
-              </label>
-              <textarea
-                className={styles.msgTextarea}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={
-                  showMsgBox === "confirm"
-                    ? "Looking forward to our lesson!"
-                    : "I need to reschedule, sorry for the inconvenience."
-                }
-                rows={2}
-              />
-              <div className={styles.msgActions}>
-                <button
-                  className={styles.discardBtn}
-                  onClick={() => {
-                    setShowMsgBox(null);
-                    setMessage("");
-                  }}
-                >
-                  Back
-                </button>
-                <button
-                  className={
-                    showMsgBox === "confirm"
-                      ? styles.confirmBtn
-                      : styles.cancelBtn
-                  }
-                  onClick={() => handleAction(showMsgBox)}
-                  disabled={loading}
-                >
-                  {loading
-                    ? "Saving…"
-                    : showMsgBox === "confirm"
-                      ? "Confirm"
-                      : "Cancel lesson"}
-                </button>
-              </div>
-            </div>
-          )}
-        </>
+      {action && (
+        <div className={styles.actionPanel}>
+          {error && <div className={styles.actionError}>{error}</div>}
+          <label className={styles.msgLabel}>
+            {action === "confirm"
+              ? "Message to student (optional)"
+              : action === "complete"
+                ? "Note to student (optional)"
+                : "Reason for cancellation (optional)"}
+          </label>
+          <textarea
+            className={styles.msgArea}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={3}
+            placeholder={
+              action === "confirm"
+                ? "e.g. Looking forward to the lesson!"
+                : action === "complete"
+                  ? "e.g. Great lesson today!"
+                  : "e.g. Unavailable at this time…"
+            }
+          />
+          <div className={styles.actionBtns}>
+            <button
+              className={styles.discardBtn}
+              onClick={() => {
+                setAction(null);
+                setError("");
+              }}
+            >
+              Back
+            </button>
+            <button
+              className={
+                action === "cancel"
+                  ? styles.confirmCancelBtn
+                  : styles.confirmActionBtn
+              }
+              onClick={handleSubmit}
+              disabled={saving}
+            >
+              {saving
+                ? "Saving…"
+                : action === "confirm"
+                  ? "Confirm Booking"
+                  : action === "complete"
+                    ? "Complete Lesson"
+                    : "Cancel Booking"}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
