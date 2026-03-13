@@ -1,7 +1,11 @@
 export interface Review {
+  _id: string;
+  student: string;
   reviewer_name: string;
   reviewer_rating: number;
   comment: string;
+  booking: string;
+  createdAt: string;
 }
 
 export interface Teacher {
@@ -31,6 +35,7 @@ export interface TeacherAd {
   reviews: Review[];
   price_per_hour: number;
   lessons_done: number;
+  total_earned: number;
   avatar_url: string;
   lesson_info: string;
   conditions: string[];
@@ -48,30 +53,45 @@ export interface User {
   name: string;
   email: string;
   role: "client" | "business";
-  languages: string[];
-  lesson_info?: string;
-  conditions?: string;
-  description?: string;
   favorites: string[];
   createdAt: string;
 }
 
-export type TeacherStatus = "pending" | "confirmed" | "cancelled";
+export type TeacherStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
 export interface Booking {
   _id: string;
   user: string | User;
   teacher?: Teacher | null;
   teacherAd?: TeacherAd | null;
+  teacherUser?: string | null;
   reason: string;
   fullName: string;
   email: string;
   phone: string;
-  status?: "active" | "cancelled";
+  scheduledAt?: string;
   teacherStatus: TeacherStatus;
   cancelledBy?: "student" | "teacher" | null;
   teacherMessage?: string;
-  scheduledAt?: string;
+  earnedAmount: number;
+  reviewLeft: boolean;
+  createdAt: string;
+}
+
+export type NotificationType =
+  | "booking_confirmed"
+  | "booking_cancelled"
+  | "lesson_completed"
+  | "review_received"
+  | "booking_new";
+
+export interface AppNotification {
+  _id: string;
+  type: NotificationType;
+  message: string;
+  booking?: string | null;
+  teacherAd?: string | null;
+  read: boolean;
   createdAt: string;
 }
 
