@@ -17,7 +17,6 @@ export default function DashboardPage() {
   const [fetching, setFetching] = useState(true);
   const [tab, setTab] = useState<FilterTab>("all");
 
-  // Redirect non-business users
   useEffect(() => {
     if (!loading) {
       if (!isAuth) router.replace("/teachers");
@@ -79,7 +78,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Filter tabs */}
       <div className={styles.tabs}>
         {(["all", "pending", "confirmed", "cancelled"] as FilterTab[]).map(
           (t) => (

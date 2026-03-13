@@ -9,13 +9,11 @@
   flex-direction: column;
   gap: 20px;
 }
-
 .loadMore {
   display: flex;
   justify-content: center;
   margin-top: 36px;
 }
-
 .loadMoreBtn {
   padding: 14px 44px;
   border-radius: var(--radius-md);
@@ -27,8 +25,8 @@
   font-family: var(--font-body);
   box-shadow: var(--shadow-accent);
   transition: transform 0.15s;
+  cursor: pointer;
 }
-
 .loadMoreBtn:hover {
   transform: translateY(-1px);
 }
@@ -37,27 +35,23 @@
   cursor: not-allowed;
   transform: none;
 }
-
 .empty {
   text-align: center;
   padding: 80px 0;
   color: #bbb;
 }
-
 .emptyIcon {
   width: 60px;
   height: 60px;
   margin: 0 auto 14px;
   display: block;
 }
-
 .emptyTitle {
   font-size: 18px;
   font-weight: 700;
   color: var(--text-muted);
   font-family: var(--font-body);
 }
-
 @media (max-width: 600px) {
   .page {
     padding: 24px 16px;

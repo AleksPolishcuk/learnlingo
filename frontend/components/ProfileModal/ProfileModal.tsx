@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { profileSchema } from "@/lib/validation";
 import api from "@/lib/api";
-import { User } from "@/types";
+import { User, TeacherAd } from "@/types";
 import UserAvatar from "@/components/UserAvatar/UserAvatar";
+import TeacherAdForm from "@/components/TeacherAdForm/TeacherAdForm";
 import styles from "./ProfileModal.module.css";
 
 const ALL_LANGUAGES = [
@@ -36,15 +37,21 @@ interface Props {
   onDelete: () => void;
 }
 
+type Tab = "edit" | "ad" | "danger";
+
 export default function ProfileModal({
   user,
   onClose,
   onUpdate,
   onDelete,
 }: Props) {
-  const [tab, setTab] = useState<"edit" | "danger">("edit");
+  const isBusiness = user.role === "business";
+  const [tab, setTab] = useState<Tab>("edit");
   const [langs, setLangs] = useState<string[]>(user.languages || []);
   const [serverError, setServerError] = useState("");
+
+  const [myAd, setMyAd] = useState<TeacherAd | null>(null);
+  const [adLoading, setAdLoading] = useState(false);
 
   const {
     register,
@@ -60,6 +67,17 @@ export default function ProfileModal({
       description: user.description || "",
     },
   });
+
+  useEffect(() => {
+    if (tab === "ad" && isBusiness && myAd === null && !adLoading) {
+      setAdLoading(true);
+      api
+        .get("/teacher-ads/my/ad")
+        .then(({ data }) => setMyAd(data.ad))
+        .catch(() => setMyAd(null))
+        .finally(() => setAdLoading(false));
+    }
+  }, [tab, isBusiness]); // eslint-disable-line
 
   const toggleLang = (lang: string) => {
     setLangs((prev) =>
@@ -99,9 +117,13 @@ export default function ProfileModal({
           <p className={styles.headerMeta}>
             {user.email} ·{" "}
             <span
-              className={`${styles.headerRole} ${user.role === "business" ? styles.roleBusiness : styles.roleClient}`}
+              className={`${styles.headerRole} ${
+                user.role === "business"
+                  ? styles.roleBusiness
+                  : styles.roleClient
+              }`}
             >
-              {user.role}
+              {user.role === "business" ? "Teacher" : "Student"}
             </span>
           </p>
         </div>
@@ -114,6 +136,14 @@ export default function ProfileModal({
         >
           Edit Profile
         </button>
+        {isBusiness && (
+          <button
+            className={`${styles.tab} ${tab === "ad" ? styles.tabActive : ""}`}
+            onClick={() => setTab("ad")}
+          >
+            My Teacher Ad
+          </button>
+        )}
         <button
           className={`${styles.tab} ${styles.tabDanger} ${tab === "danger" ? styles.tabDangerActive : ""}`}
           onClick={() => setTab("danger")}
@@ -159,7 +189,7 @@ export default function ProfileModal({
             )}
           </div>
 
-          {user.role === "business" && (
+          {isBusiness && (
             <div className={styles.field}>
               <label className={styles.label}>Languages You Teach</label>
               <div className={styles.langPicker}>
@@ -177,7 +207,7 @@ export default function ProfileModal({
             </div>
           )}
 
-          {user.role === "client" && (
+          {!isBusiness && (
             <>
               <div className={styles.field}>
                 <label className={styles.label}>Lesson Info</label>
@@ -214,6 +244,20 @@ export default function ProfileModal({
             {isSubmitting ? "Saving…" : "Save Changes"}
           </button>
         </form>
+      )}
+
+      {tab === "ad" && isBusiness && (
+        <div>
+          {adLoading ? (
+            <div className={styles.adLoading}>Loading your ad…</div>
+          ) : (
+            <TeacherAdForm
+              existingAd={myAd}
+              onSaved={(ad) => setMyAd(ad)}
+              onDeleted={() => setMyAd(null)}
+            />
+          )}
+        </div>
       )}
 
       {tab === "danger" && (

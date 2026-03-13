@@ -42,7 +42,10 @@ export default function Navbar({
 
   const privateLinks =
     user?.role === "business"
-      ? [{ href: "/dashboard", label: "Dashboard" }]
+      ? [
+          { href: "/favorites", label: "Favorites" },
+          { href: "/dashboard", label: "Dashboard" },
+        ]
       : [
           { href: "/favorites", label: "Favorites" },
           { href: "/reservations", label: "Reservations" },

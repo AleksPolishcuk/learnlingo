@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { Teacher, TeacherFilters } from "@/types";
+import { Teacher, TeacherFilters, AnyTeacher } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
 import FilterBar from "@/components/FilterBar/FilterBar";
 import TeacherCard from "@/components/TeacherCard/TeacherCard";
@@ -11,22 +11,33 @@ import styles from "./page.module.css";
 import SkeletonCard from "@/components/SkeletonCard/SkeletonCard";
 
 const PAGE_SIZE = 4;
-const DEFAULT_FILTERS: TeacherFilters = { language: "", level: "", price: "" };
+const DEFAULT_FILTERS: TeacherFilters = {
+  language: "",
+  level: "",
+  price: "",
+  sortBy: "",
+};
 
 export default function TeachersPage() {
   const { isAuth, favorites, toggleFavorite, openAuthWarn, showToast } =
     useAuthContext();
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+
+  const [teachers, setTeachers] = useState<AnyTeacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<TeacherFilters>(DEFAULT_FILTERS);
-  const [bookingTeacher, setBookingTeacher] = useState<Teacher | null>(null);
 
-  const fetchTeachers = useCallback(
+  const [bookingTeacher, setBookingTeacher] = useState<{
+    teacher: AnyTeacher;
+    isAd: boolean;
+  } | null>(null);
+
+  const fetchAll = useCallback(
     async (nextFilters: TeacherFilters, nextPage: number, append: boolean) => {
       try {
         setLoading(true);
+
         const params: Record<string, string> = {
           page: String(nextPage),
           limit: String(PAGE_SIZE),
@@ -34,12 +45,66 @@ export default function TeachersPage() {
         if (nextFilters.language) params.language = nextFilters.language;
         if (nextFilters.level) params.level = nextFilters.level;
         if (nextFilters.price) params.price = nextFilters.price;
+        if (nextFilters.sortBy) params.sortBy = nextFilters.sortBy;
 
-        const { data } = await api.get("/teachers", { params });
-        setTeachers((prev) =>
-          append ? [...prev, ...data.teachers] : data.teachers,
-        );
-        setHasMore(data.hasMore);
+        const [teachersRes, adsRes] = await Promise.allSettled([
+          api.get("/teachers", { params }),
+          api.get("/teacher-ads", { params }),
+        ]);
+
+        const seeded: AnyTeacher[] =
+          teachersRes.status === "fulfilled"
+            ? (teachersRes.value.data.teachers ?? [])
+            : [];
+
+        const ads: AnyTeacher[] =
+          adsRes.status === "fulfilled"
+            ? (adsRes.value.data.teachers ?? [])
+            : [];
+
+        const taggedAds = ads.map((a) => ({ ...a, _isAd: true }));
+
+        let merged: AnyTeacher[] = [...seeded, ...taggedAds];
+
+        if (nextFilters.sortBy === "name_asc") {
+          merged.sort((a, b) =>
+            `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`),
+          );
+        } else if (nextFilters.sortBy === "name_desc") {
+          merged.sort((a, b) =>
+            `${b.name} ${b.surname}`.localeCompare(`${a.name} ${a.surname}`),
+          );
+        } else if (nextFilters.sortBy === "newest") {
+          merged.sort((a, b) => {
+            const aDate = (a as any).createdAt
+              ? new Date((a as any).createdAt).getTime()
+              : 0;
+            const bDate = (b as any).createdAt
+              ? new Date((b as any).createdAt).getTime()
+              : 0;
+            return bDate - aDate;
+          });
+        } else if (nextFilters.sortBy === "oldest") {
+          merged.sort((a, b) => {
+            const aDate = (a as any).createdAt
+              ? new Date((a as any).createdAt).getTime()
+              : Infinity;
+            const bDate = (b as any).createdAt
+              ? new Date((b as any).createdAt).getTime()
+              : Infinity;
+            return aDate - bDate;
+          });
+        }
+
+        setTeachers((prev) => (append ? [...prev, ...merged] : merged));
+
+        const seededHasMore =
+          teachersRes.status === "fulfilled"
+            ? teachersRes.value.data.hasMore
+            : false;
+        const adsHasMore =
+          adsRes.status === "fulfilled" ? adsRes.value.data.hasMore : false;
+        setHasMore(seededHasMore || adsHasMore);
       } catch (err: any) {
         showToast(err.message, "error");
       } finally {
@@ -51,30 +116,27 @@ export default function TeachersPage() {
 
   useEffect(() => {
     setPage(1);
-    fetchTeachers(filters, 1, false);
+    fetchAll(filters, 1, false);
   }, [filters]); // eslint-disable-line
 
   const handleLoadMore = () => {
     const next = page + 1;
     setPage(next);
-    fetchTeachers(filters, next, true);
+    fetchAll(filters, next, true);
   };
 
-  const handleFiltersChange = (f: TeacherFilters) => {
-    setFilters(f);
-  };
-
-  const handleBook = (teacher: Teacher) => {
+  const handleBook = (teacher: AnyTeacher) => {
     if (!isAuth) {
       openAuthWarn();
       return;
     }
-    setBookingTeacher(teacher);
+    const isAd = !!(teacher as any)._isAd;
+    setBookingTeacher({ teacher, isAd });
   };
 
   return (
     <div className={styles.page}>
-      <FilterBar filters={filters} onChange={handleFiltersChange} />
+      <FilterBar filters={filters} onChange={setFilters} />
 
       {loading && teachers.length === 0 ? (
         <div className={styles.list}>
@@ -94,7 +156,6 @@ export default function TeachersPage() {
               xlinkHref="/sprite.svg#icon-glass"
             />
           </svg>
-
           <p className={styles.emptyTitle}>
             No teachers found for these filters
           </p>
@@ -105,7 +166,7 @@ export default function TeachersPage() {
             {teachers.map((t) => (
               <TeacherCard
                 key={t._id}
-                teacher={t}
+                teacher={t as Teacher}
                 isFav={favorites.includes(t._id)}
                 onToggleFav={() => {
                   if (!isAuth) {
@@ -142,7 +203,8 @@ export default function TeachersPage() {
       >
         {bookingTeacher && (
           <BookingForm
-            teacher={bookingTeacher}
+            teacher={bookingTeacher.teacher}
+            isAd={bookingTeacher.isAd}
             onClose={() => setBookingTeacher(null)}
             onBooked={() => showToast("Trial lesson booked!")}
           />

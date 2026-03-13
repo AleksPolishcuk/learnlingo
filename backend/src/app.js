@@ -25,7 +25,7 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/teachers", teacherRoutes);
-app.use("/api/teacher-adds", teacherAdRoutes);
+app.use("/api/teacher-ads", teacherAdRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
 
