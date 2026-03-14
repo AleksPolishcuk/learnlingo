@@ -8,14 +8,7 @@ import {
   ReactNode,
 } from "react";
 import { User } from "@/types";
-import {
-  saveAuth,
-  clearAuth,
-  getStoredToken,
-  getStoredUser,
-  getStoredFavorites,
-  setStoredFavorites,
-} from "@/lib/auth";
+import { saveAuth, clearAuth, getStoredToken, getStoredUser } from "@/lib/auth";
 import api from "@/lib/api";
 
 interface AuthContextValue {
@@ -27,7 +20,10 @@ interface AuthContextValue {
   login: (token: string, user: User) => void;
   logout: () => void;
   updateUser: (user: User) => void;
-  toggleFavorite: (teacherId: string) => Promise<void>;
+  toggleFavorite: (
+    teacherId: string,
+    kind?: "Teacher" | "TeacherAd",
+  ) => Promise<void>;
   toast: { message: string; type: "success" | "error" } | null;
   showToast: (message: string, type?: "success" | "error") => void;
   clearToast: () => void;
@@ -50,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<string[]>([]);
+
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error";
@@ -64,18 +61,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(storedUser);
-      setFavorites(getStoredFavorites(storedUser._id));
     }
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (!user) {
+      setFavorites([]);
+      return;
+    }
+    api
+      .get("/favorites")
+      .then(({ data }) => {
+        const ids = (data.favorites ?? []).map((t: any) => String(t._id));
+        setFavorites(ids);
+      })
+      .catch(() => setFavorites([]));
+  }, [user?._id]);
+
   const showToast = useCallback(
-    (message: string, type: "success" | "error" = "success") => {
-      setToast({ message, type });
-    },
+    (message: string, type: "success" | "error" = "success") =>
+      setToast({ message, type }),
     [],
   );
-
   const clearToast = useCallback(() => setToast(null), []);
 
   const login = useCallback(
@@ -83,7 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       saveAuth(tok, usr);
       setToken(tok);
       setUser(usr);
-      setFavorites(getStoredFavorites(usr._id));
       setAuthModal(null);
       showToast(`Welcome back, ${usr.name}!`);
     },
@@ -108,23 +115,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleFavorite = useCallback(
-    async (teacherId: string) => {
+    async (teacherId: string, kind: "Teacher" | "TeacherAd" = "Teacher") => {
       if (!user) return;
+
       const isFav = favorites.includes(teacherId);
-      const next = isFav
-        ? favorites.filter((id) => id !== teacherId)
-        : [...favorites, teacherId];
-      setFavorites(next);
-      setStoredFavorites(user._id, next);
+
+      setFavorites((prev) =>
+        isFav ? prev.filter((id) => id !== teacherId) : [...prev, teacherId],
+      );
+
       try {
         if (isFav) {
           await api.delete(`/favorites/${teacherId}`);
         } else {
-          await api.post(`/favorites/${teacherId}`);
+          await api.post(`/favorites/${teacherId}`, { kind });
         }
       } catch {
-        setFavorites(favorites);
-        setStoredFavorites(user._id, favorites);
+        setFavorites((prev) =>
+          isFav ? [...prev, teacherId] : prev.filter((id) => id !== teacherId),
+        );
       }
     },
     [user, favorites],

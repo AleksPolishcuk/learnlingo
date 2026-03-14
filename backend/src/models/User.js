@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
     conditions: { type: String, default: "" },
     description: { type: String, default: "" },
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Teacher" }],
+    favoriteAds: [{ type: mongoose.Schema.Types.ObjectId, ref: "TeacherAd" }],
   },
   { timestamps: true },
 );

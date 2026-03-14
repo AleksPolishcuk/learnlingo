@@ -54,17 +54,22 @@ export default function TeachersPage() {
 
         const seeded: AnyTeacher[] =
           teachersRes.status === "fulfilled"
-            ? (teachersRes.value.data.teachers ?? [])
+            ? (teachersRes.value.data.teachers ?? []).map((t: AnyTeacher) => ({
+                ...t,
+                _kind: "Teacher",
+              }))
             : [];
 
         const ads: AnyTeacher[] =
           adsRes.status === "fulfilled"
-            ? (adsRes.value.data.teachers ?? [])
+            ? (adsRes.value.data.teachers ?? []).map((a: AnyTeacher) => ({
+                ...a,
+                _kind: "TeacherAd",
+                _isAd: true,
+              }))
             : [];
 
-        const taggedAds = ads.map((a) => ({ ...a, _isAd: true }));
-
-        let merged: AnyTeacher[] = [...seeded, ...taggedAds];
+        let merged: AnyTeacher[] = [...seeded, ...ads];
 
         if (nextFilters.sortBy === "name_asc") {
           merged.sort((a, b) =>
@@ -130,8 +135,7 @@ export default function TeachersPage() {
       openAuthWarn();
       return;
     }
-    const isAd = !!(teacher as any)._isAd;
-    setBookingTeacher({ teacher, isAd });
+    setBookingTeacher({ teacher, isAd: !!(teacher as any)._isAd });
   };
 
   return (
@@ -173,7 +177,9 @@ export default function TeachersPage() {
                     openAuthWarn();
                     return;
                   }
-                  toggleFavorite(t._id);
+                  const kind =
+                    (t as any)._kind === "TeacherAd" ? "TeacherAd" : "Teacher";
+                  toggleFavorite(t._id, kind);
                 }}
                 onBook={() => handleBook(t)}
                 isAuth={isAuth}

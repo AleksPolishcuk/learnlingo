@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Teacher } from "@/types";
+import { Teacher, AnyTeacher } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
 import TeacherCard from "@/components/TeacherCard/TeacherCard";
 import Modal from "@/components/Modal/Modal";
@@ -21,9 +21,12 @@ export default function FavoritesPage() {
     openAuthWarn,
   } = useAuthContext();
 
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<AnyTeacher[]>([]);
   const [fetching, setFetching] = useState(true);
-  const [bookingTeacher, setBookingTeacher] = useState<Teacher | null>(null);
+  const [bookingTeacher, setBookingTeacher] = useState<{
+    teacher: AnyTeacher;
+    isAd: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (!loading && !isAuth) router.replace("/teachers");
@@ -31,19 +34,11 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     if (!isAuth) return;
-
-    const load = async () => {
-      try {
-        const { data } = await api.get("/favorites");
-        setTeachers(data.favorites);
-      } catch {
-        setTeachers([]);
-      } finally {
-        setFetching(false);
-      }
-    };
-
-    load();
+    api
+      .get("/favorites")
+      .then(({ data }) => setTeachers(data.favorites ?? []))
+      .catch(() => setTeachers([]))
+      .finally(() => setFetching(false));
   }, [isAuth]);
 
   if (loading || !isAuth) return null;
@@ -77,17 +72,22 @@ export default function FavoritesPage() {
           {teachers.map((t) => (
             <TeacherCard
               key={t._id}
-              teacher={t}
+              teacher={t as Teacher}
               isFav={favorites.includes(t._id)}
               onToggleFav={() => {
                 if (!isAuth) {
                   openAuthWarn();
                   return;
                 }
-                toggleFavorite(t._id);
+                const kind =
+                  (t as any)._kind === "TeacherAd" ? "TeacherAd" : "Teacher";
+                toggleFavorite(t._id, kind);
                 setTeachers((prev) => prev.filter((x) => x._id !== t._id));
               }}
-              onBook={() => setBookingTeacher(t)}
+              onBook={() => {
+                const isAd = (t as any)._kind === "TeacherAd";
+                setBookingTeacher({ teacher: t, isAd });
+              }}
               isAuth={true}
               onAuthRequired={() => {}}
             />
@@ -102,7 +102,8 @@ export default function FavoritesPage() {
       >
         {bookingTeacher && (
           <BookingForm
-            teacher={bookingTeacher}
+            teacher={bookingTeacher.teacher}
+            isAd={bookingTeacher.isAd}
             onClose={() => setBookingTeacher(null)}
             onBooked={() => showToast("Trial lesson booked!")}
           />
