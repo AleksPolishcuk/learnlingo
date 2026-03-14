@@ -13,13 +13,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     user,
     login,
     logout,
-    updateUser,
     authModal,
     openLogin,
     openRegister,
     closeAuthModal,
     profileModal,
-    openProfile,
     closeProfile,
     authWarn,
     closeAuthWarn,
@@ -29,20 +27,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     clearToast,
   } = useAuthContext();
 
-  const handleDelete = () => {
-    logout();
-    closeProfile();
-  };
-
   return (
     <>
-      <Navbar
-        user={user}
-        onLogin={openLogin}
-        onRegister={openRegister}
-        onLogout={logout}
-        onProfile={openProfile}
-      />
+      <Navbar />
 
       <main>{children}</main>
 
@@ -67,14 +54,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </Modal>
 
       <Modal open={profileModal} onClose={closeProfile} wide>
-        {user && (
-          <ProfileModal
-            user={user}
-            onClose={closeProfile}
-            onUpdate={updateUser}
-            onDelete={handleDelete}
-          />
-        )}
+        {user && <ProfileModal user={user} onClose={closeProfile} />}
       </Modal>
 
       <Modal open={authWarn} onClose={closeAuthWarn}>
