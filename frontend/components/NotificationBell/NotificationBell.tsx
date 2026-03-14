@@ -41,15 +41,25 @@ export default function NotificationBell() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const handleOpen = async () => {
-    setOpen((p) => !p);
-    if (!open && unread > 0) {
-      try {
-        await api.patch("/notifications/read-all");
-        setUnread(0);
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      } catch {}
-    }
+  const handleToggle = () => setOpen((p) => !p);
+
+  const handleHover = async (n: AppNotification) => {
+    if (n.read) return;
+    try {
+      await api.patch(`/notifications/${n._id}/read`);
+      setNotifications((prev) =>
+        prev.map((x) => (x._id === n._id ? { ...x, read: true } : x)),
+      );
+      setUnread((prev) => Math.max(0, prev - 1));
+    } catch {}
+  };
+
+  const handleDeleteAll = async () => {
+    try {
+      await api.delete("/notifications/all");
+      setNotifications([]);
+      setUnread(0);
+    } catch {}
   };
 
   const formatTime = (iso: string) => {
@@ -67,7 +77,7 @@ export default function NotificationBell() {
     <div ref={ref} className={styles.wrap}>
       <button
         className={styles.bellBtn}
-        onClick={handleOpen}
+        onClick={handleToggle}
         aria-label="Notifications"
       >
         <svg
@@ -90,15 +100,8 @@ export default function NotificationBell() {
           <div className={styles.header}>
             <span className={styles.title}>Notifications</span>
             {notifications.length > 0 && (
-              <button
-                className={styles.clearBtn}
-                onClick={async () => {
-                  await api.patch("/notifications/read-all");
-                  setNotifications((p) => p.map((n) => ({ ...n, read: true })));
-                  setUnread(0);
-                }}
-              >
-                Mark all read
+              <button className={styles.deleteAllBtn} onClick={handleDeleteAll}>
+                Delete all
               </button>
             )}
           </div>
@@ -111,6 +114,7 @@ export default function NotificationBell() {
                 <div
                   key={n._id}
                   className={`${styles.item} ${!n.read ? styles.itemUnread : ""}`}
+                  onMouseEnter={() => handleHover(n)}
                 >
                   <span className={styles.itemIcon}>
                     {TYPE_ICON[n.type] ?? "🔔"}

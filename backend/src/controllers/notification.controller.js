@@ -44,4 +44,13 @@ const markOneRead = async (req, res, next) => {
   }
 };
 
-module.exports = { getNotifications, markAllRead, markOneRead };
+const deleteAll = async (req, res, next) => {
+  try {
+    await Notification.deleteMany({ recipient: req.user._id });
+    res.json({ message: "All notifications deleted" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getNotifications, markAllRead, markOneRead, deleteAll };
