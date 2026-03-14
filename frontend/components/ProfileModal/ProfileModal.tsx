@@ -1,6 +1,8 @@
 "use client";
 import { useState, lazy, Suspense } from "react";
 import { User } from "@/types";
+import { useAuthContext } from "@/context/AuthContext";
+import AvatarUpload from "@/components/AvatarUpload/AvatarUpload";
 import styles from "./ProfileModal.module.css";
 
 const AdManager = lazy(() => import("@/components/AdManeger/AdManeger"));
@@ -16,6 +18,7 @@ interface Props {
 type Tab = "profile" | "ads" | "earnings";
 
 export default function ProfileModal({ user, onClose }: Props) {
+  const { updateUser } = useAuthContext();
   const isBusiness = user.role === "business";
   const [tab, setTab] = useState<Tab>("profile");
 
@@ -29,10 +32,15 @@ export default function ProfileModal({ user, onClose }: Props) {
       : []),
   ];
 
+  const handleAvatarUploaded = (url: string) => {
+    updateUser({ ...user, avatar_url: url });
+  };
+
   return (
     <div className={styles.wrap}>
       <h2 className={styles.title}>Account</h2>
 
+      {/* Tab nav */}
       <div className={styles.tabs}>
         {tabs.map((t) => (
           <button
@@ -48,17 +56,25 @@ export default function ProfileModal({ user, onClose }: Props) {
       {tab === "profile" && (
         <div className={styles.profileSection}>
           <div className={styles.avatarRow}>
-            <div className={styles.avatarCircle}>
-              {user.name?.[0]?.toUpperCase() ?? "U"}
-            </div>
+            <AvatarUpload
+              currentUrl={user.avatar_url}
+              name={user.name}
+              endpoint="/upload/avatar"
+              onUploaded={handleAvatarUploaded}
+              size={96}
+            />
             <div>
               <div className={styles.userName}>{user.name}</div>
               <div className={styles.userEmail}>{user.email}</div>
               <div className={styles.userRole}>
                 {isBusiness ? "🏫 Teacher account" : "🎓 Student account"}
               </div>
+              <p className={styles.avatarHint}>
+                Click the photo to upload a new one
+              </p>
             </div>
           </div>
+
           <div className={styles.memberSince}>
             Member since{" "}
             {new Date(user.createdAt).toLocaleDateString("en-US", {

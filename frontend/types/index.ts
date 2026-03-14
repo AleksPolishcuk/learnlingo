@@ -53,6 +53,7 @@ export interface User {
   name: string;
   email: string;
   role: "client" | "business";
+  avatar_url: string;
   favorites: string[];
   createdAt: string;
 }

@@ -28,13 +28,11 @@ const userSchema = new mongoose.Schema(
       enum: ["client", "business"],
       default: "client",
     },
-    languages: {
-      type: [String],
-      default: [],
-    },
+    languages: { type: [String], default: [] },
     lesson_info: { type: String, default: "" },
     conditions: { type: String, default: "" },
     description: { type: String, default: "" },
+    avatar_url: { type: String, default: "" },
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Teacher" }],
     favoriteAds: [{ type: mongoose.Schema.Types.ObjectId, ref: "TeacherAd" }],
   },
@@ -47,8 +45,8 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = async function (candidate) {
+  return bcrypt.compare(candidate, this.password);
 };
 
 userSchema.methods.toJSON = function () {
