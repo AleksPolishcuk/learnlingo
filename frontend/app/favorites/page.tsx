@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Teacher, AnyTeacher } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
@@ -9,6 +9,8 @@ import BookingForm from "@/components/BookingForm/BookingForm";
 import SkeletonCard from "@/components/SkeletonCard/SkeletonCard";
 import api from "@/lib/api";
 import styles from "./page.module.css";
+
+const PAGE_SIZE = 3;
 
 export default function FavoritesPage() {
   const router = useRouter();
@@ -21,8 +23,13 @@ export default function FavoritesPage() {
     openAuthWarn,
   } = useAuthContext();
 
-  const [teachers, setTeachers] = useState<AnyTeacher[]>([]);
+  // All favorites fetched from the API
+  const allRef = useRef<AnyTeacher[]>([]);
+  // How many are currently shown on screen
+  const [visible, setVisible] = useState<AnyTeacher[]>([]);
   const [fetching, setFetching] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+
   const [bookingTeacher, setBookingTeacher] = useState<{
     teacher: AnyTeacher;
     isAd: boolean;
@@ -32,14 +39,46 @@ export default function FavoritesPage() {
     if (!loading && !isAuth) router.replace("/teachers");
   }, [loading, isAuth, router]);
 
+  // Fetch all favorites once, then show first PAGE_SIZE
   useEffect(() => {
     if (!isAuth) return;
     api
       .get("/favorites")
-      .then(({ data }) => setTeachers(data.favorites ?? []))
-      .catch(() => setTeachers([]))
+      .then(({ data }) => {
+        const all: AnyTeacher[] = data.favorites ?? [];
+        allRef.current = all;
+        setVisible(all.slice(0, PAGE_SIZE));
+        setHasMore(all.length > PAGE_SIZE);
+      })
+      .catch(() => {
+        allRef.current = [];
+        setVisible([]);
+        setHasMore(false);
+      })
       .finally(() => setFetching(false));
   }, [isAuth]);
+
+  const handleLoadMore = () => {
+    const currentCount = visible.length;
+    const next = allRef.current.slice(0, currentCount + PAGE_SIZE);
+    setVisible(next);
+    setHasMore(next.length < allRef.current.length);
+  };
+
+  const handleRemove = (id: string) => {
+    allRef.current = allRef.current.filter((x) => x._id !== id);
+    setVisible((prev) => {
+      const next = prev.filter((x) => x._id !== id);
+      // If we removed one from the visible list, pull in the next from buffer
+      if (next.length < prev.length && allRef.current.length >= next.length) {
+        const replenished = allRef.current.slice(0, next.length);
+        setHasMore(replenished.length < allRef.current.length);
+        return replenished;
+      }
+      setHasMore(next.length < allRef.current.length);
+      return next;
+    });
+  };
 
   if (loading || !isAuth) return null;
 
@@ -49,11 +88,11 @@ export default function FavoritesPage() {
 
       {fetching ? (
         <div className={styles.list}>
-          {[...Array(4)].map((_, i) => (
+          {[...Array(3)].map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
-      ) : teachers.length === 0 ? (
+      ) : visible.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>💛</div>
           <p className={styles.emptyTitle}>No favorites yet</p>
@@ -68,31 +107,41 @@ export default function FavoritesPage() {
           </button>
         </div>
       ) : (
-        <div className={styles.list}>
-          {teachers.map((t) => (
-            <TeacherCard
-              key={t._id}
-              teacher={t as Teacher}
-              isFav={favorites.includes(t._id)}
-              onToggleFav={() => {
-                if (!isAuth) {
-                  openAuthWarn();
-                  return;
-                }
-                const kind =
-                  (t as any)._kind === "TeacherAd" ? "TeacherAd" : "Teacher";
-                toggleFavorite(t._id, kind);
-                setTeachers((prev) => prev.filter((x) => x._id !== t._id));
-              }}
-              onBook={() => {
-                const isAd = (t as any)._kind === "TeacherAd";
-                setBookingTeacher({ teacher: t, isAd });
-              }}
-              isAuth={true}
-              onAuthRequired={() => {}}
-            />
-          ))}
-        </div>
+        <>
+          <div className={styles.list}>
+            {visible.map((t) => (
+              <TeacherCard
+                key={t._id}
+                teacher={t as Teacher}
+                isFav={favorites.includes(t._id)}
+                onToggleFav={() => {
+                  if (!isAuth) {
+                    openAuthWarn();
+                    return;
+                  }
+                  const kind =
+                    (t as any)._kind === "TeacherAd" ? "TeacherAd" : "Teacher";
+                  toggleFavorite(t._id, kind);
+                  handleRemove(t._id);
+                }}
+                onBook={() => {
+                  const isAd = (t as any)._kind === "TeacherAd";
+                  setBookingTeacher({ teacher: t, isAd });
+                }}
+                isAuth={true}
+                onAuthRequired={() => {}}
+              />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className={styles.loadMore}>
+              <button className={styles.loadMoreBtn} onClick={handleLoadMore}>
+                Load more
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       <Modal

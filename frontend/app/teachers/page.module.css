@@ -29,6 +29,7 @@
 }
 .loadMoreBtn:hover {
   transform: translateY(-1px);
+  background: #ffdc86;
 }
 .loadMoreBtn:disabled {
   opacity: 0.6;

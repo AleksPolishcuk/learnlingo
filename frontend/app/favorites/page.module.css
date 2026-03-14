@@ -60,6 +60,34 @@
   transform: translateY(-1px);
 }
 
+.loadMore {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+}
+.loadMoreBtn {
+  padding: 14px 44px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--accent);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-accent);
+  transition: transform 0.15s;
+  cursor: pointer;
+}
+.loadMoreBtn:hover {
+  transform: translateY(-1px);
+  background: #ffdc86;
+}
+.loadMoreBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 @media (max-width: 600px) {
   .page {
     padding: 24px 16px;
