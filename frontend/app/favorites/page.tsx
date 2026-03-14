@@ -23,9 +23,7 @@ export default function FavoritesPage() {
     openAuthWarn,
   } = useAuthContext();
 
-  // All favorites fetched from the API
   const allRef = useRef<AnyTeacher[]>([]);
-  // How many are currently shown on screen
   const [visible, setVisible] = useState<AnyTeacher[]>([]);
   const [fetching, setFetching] = useState(true);
   const [hasMore, setHasMore] = useState(false);
@@ -39,7 +37,6 @@ export default function FavoritesPage() {
     if (!loading && !isAuth) router.replace("/teachers");
   }, [loading, isAuth, router]);
 
-  // Fetch all favorites once, then show first PAGE_SIZE
   useEffect(() => {
     if (!isAuth) return;
     api
@@ -69,7 +66,6 @@ export default function FavoritesPage() {
     allRef.current = allRef.current.filter((x) => x._id !== id);
     setVisible((prev) => {
       const next = prev.filter((x) => x._id !== id);
-      // If we removed one from the visible list, pull in the next from buffer
       if (next.length < prev.length && allRef.current.length >= next.length) {
         const replenished = allRef.current.slice(0, next.length);
         setHasMore(replenished.length < allRef.current.length);
