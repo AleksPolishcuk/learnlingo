@@ -77,7 +77,6 @@ export default function ProfileModal({
       const { data } = await api.get("/teacher-ads/my/ads");
       setAds(data.ads ?? []);
     } catch {
-      /* ignore */
     } finally {
       setAdsLoading(false);
     }
@@ -122,6 +121,21 @@ export default function ProfileModal({
     try {
       const { data } = await api.patch(`/teacher-ads/${ad._id}/toggle`);
       setAds((prev) => prev.map((a) => (a._id === ad._id ? data.ad : a)));
+    } catch (e: any) {
+      alert(e.response?.data?.message || e.message);
+    }
+  };
+
+  const handleDeleteAd = async (ad: TeacherAd) => {
+    if (
+      !window.confirm(
+        `Delete the ad "${ad.name} ${ad.surname}"? This cannot be undone.`,
+      )
+    )
+      return;
+    try {
+      await api.delete(`/teacher-ads/${ad._id}`);
+      setAds((prev) => prev.filter((a) => a._id !== ad._id));
     } catch (e: any) {
       alert(e.response?.data?.message || e.message);
     }
@@ -393,6 +407,12 @@ export default function ProfileModal({
                       onClick={() => handleToggleActive(ad)}
                     >
                       {ad.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                    <button
+                      className={styles.adDeleteBtn}
+                      onClick={() => handleDeleteAd(ad)}
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>

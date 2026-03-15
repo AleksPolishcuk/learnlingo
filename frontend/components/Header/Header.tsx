@@ -30,22 +30,22 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const BASE_LINKS = [
-    { href: "/", label: "Home" },
-    { href: "/teachers", label: "Teachers" },
-  ];
-
-  const privateLinks = isBusiness
+  const navLinks = !user
     ? [
-        { href: "/favorites", label: "Favorites" },
-        { href: "/dashboard", label: "Dashboard" },
+        { href: "/", label: "Home" },
+        { href: "/teachers", label: "Teachers" },
       ]
-    : [
-        { href: "/favorites", label: "Favorites" },
-        { href: "/reservations", label: "Reservations" },
-      ];
-
-  const allLinks = user ? [...BASE_LINKS, ...privateLinks] : BASE_LINKS;
+    : isBusiness
+      ? [
+          { href: "/", label: "Home" },
+          { href: "/dashboard", label: "Dashboard" },
+        ]
+      : [
+          { href: "/", label: "Home" },
+          { href: "/teachers", label: "Teachers" },
+          { href: "/favorites", label: "Favorites" },
+          { href: "/reservations", label: "Reservations" },
+        ];
 
   const handleLogout = () => {
     logout();
@@ -69,7 +69,7 @@ export default function Header() {
           </Link>
 
           <div className={styles.nav}>
-            {allLinks.map(({ href, label }) => (
+            {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}

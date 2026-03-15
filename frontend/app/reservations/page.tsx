@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Booking } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
+import { useRoleGuard } from "@/hooks/useRoleGuard";
 import ReservationCard from "@/components/ReservationCard/ReservationCard";
 import api from "@/lib/api";
 import styles from "./page.module.css";
@@ -10,29 +10,22 @@ import styles from "./page.module.css";
 type FilterTab = "all" | "pending" | "confirmed" | "completed" | "cancelled";
 
 export default function ReservationsPage() {
-  const router = useRouter();
-  const { user, isAuth, loading: authLoading } = useAuthContext();
+  useRoleGuard(["client"], "/teachers");
+
+  const { isAuth, user, loading: authLoading } = useAuthContext();
 
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterTab>("all");
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!isAuth) router.replace("/teachers");
-    if (user?.role === "business") router.replace("/dashboard");
-  }, [isAuth, user, authLoading, router]);
-
-  useEffect(() => {
-    if (!isAuth || user?.role === "business") return;
+    if (!isAuth || user?.role !== "client") return;
     api
       .get("/bookings")
-      .then(({ data }) => {
-        setBookings(data.bookings);
-      })
+      .then(({ data }) => setBookings(data.bookings))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [isAuth, user]);
+  }, [isAuth, user?.role]);
 
   const handleChange = (updated: Booking) =>
     setBookings((prev) =>
@@ -55,7 +48,7 @@ export default function ReservationsPage() {
       ? bookings
       : bookings.filter((b) => b.teacherStatus === filter);
 
-  if (authLoading) return null;
+  if (authLoading || user?.role === "business") return null;
 
   return (
     <div className={styles.page}>
