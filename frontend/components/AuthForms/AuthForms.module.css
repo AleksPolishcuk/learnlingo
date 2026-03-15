@@ -1,25 +1,36 @@
+.wrap {
+  padding: 8px 0 4px;
+}
+
 .title {
   font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
   color: var(--text);
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 }
 
 .subtitle {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-muted);
-  margin: 0 0 40px;
-  line-height: 1.5;
+  line-height: 1.55;
+  margin: 0 0 24px;
 }
 
 .serverError {
-  font-size: 13px;
-  color: var(--red);
   background: var(--red-light);
+  border: 1px solid #fca5a5;
   border-radius: var(--radius-sm);
   padding: 10px 14px;
+  font-size: 13px;
+  color: var(--red);
   margin-bottom: 16px;
+}
+
+.nameRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .field {
@@ -36,105 +47,84 @@
   margin-bottom: 6px;
 }
 
-.error {
-  font-size: 11px;
+.fieldError {
   color: var(--red);
+  font-size: 11px;
   margin-top: 4px;
 }
 
-.roleToggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: transparent;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.input:focus {
+  border-color: var(--accent);
 }
 
-.roleBtn {
+.roleRow {
+  display: flex;
+  gap: 12px;
+}
+
+.roleOption {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  padding: 14px 0;
+  cursor: pointer;
+  padding: 10px 20px;
   border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 700;
-  font-family: var(--font-body);
   border: 1.5px solid var(--border);
-  background: #fafafa;
-  color: var(--text-muted);
-  transition:
-    border-color 0.2s,
-    background 0.2s,
-    color 0.2s;
-}
-
-.roleBtnActive {
-  border-color: var(--accent);
-  background: var(--gold-light);
-  color: #7a5800;
-}
-
-.roleBtn:hover {
-  background-color: var(--accent-light);
-}
-
-.roleIcon {
-  width: 20px;
-  height: 20px;
-  display: block;
-  fill: currentColor;
-  stroke: currentColor;
-  flex-shrink: 0;
-}
-
-.langPicker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.langBtn {
-  padding: 7px 16px;
-  border-radius: 99px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-body);
-  border: 1.5px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text-muted);
+  flex: 1;
+  justify-content: center;
   transition:
     border-color 0.15s,
-    background 0.15s,
-    color 0.15s;
+    background 0.15s;
+}
+.roleOption:has(.roleRadio:checked) {
+  border-color: var(--accent);
+  background: var(--gold-light);
 }
 
-.langBtnActive {
-  border-color: var(--text);
-  background: var(--text);
-  color: #fff;
+.roleRadio {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.roleLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .submitBtn {
   width: 100%;
-  padding: 16px;
+  padding: 14px;
   border-radius: var(--radius-md);
   border: none;
   background: var(--accent);
   color: var(--text);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-body);
-  margin-top: 8px;
   box-shadow: var(--shadow-accent);
-  transition:
-    transform 0.15s,
-    box-shadow 0.15s;
+  transition: transform 0.15s;
+  cursor: pointer;
+  margin-top: 4px;
 }
-
 .submitBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(244, 197, 80, 0.5);
 }
-
 .submitBtn:disabled {
   opacity: 0.65;
   cursor: not-allowed;
@@ -143,18 +133,28 @@
 
 .switchText {
   text-align: center;
-  margin-top: 16px;
   font-size: 14px;
   color: var(--text-muted);
+  margin-top: 18px;
 }
 
 .switchBtn {
   background: none;
   border: none;
-  color: var(--accent-dark);
-  font-weight: 700;
   font-size: 14px;
-  font-family: var(--font-body);
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
+  font-family: var(--font-body);
+}
+.switchBtn:hover {
+  opacity: 0.8;
+}
+
+@media (max-width: 480px) {
+  .nameRow {
+    grid-template-columns: 1fr;
+  }
 }

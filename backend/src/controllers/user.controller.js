@@ -8,23 +8,22 @@ const getAllUsers = async (req, res, next) => {
     if (search)
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
+        { surname: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ];
-
     const skip = (Number(page) - 1) * Number(limit);
     const [users, total] = await Promise.all([
       User.find(filter).skip(skip).limit(Number(limit)).sort({ createdAt: -1 }),
       User.countDocuments(filter),
     ]);
-
     res.json({
       users,
       total,
       page: Number(page),
       pages: Math.ceil(total / Number(limit)),
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -33,25 +32,30 @@ const getUserById = async (req, res, next) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ user });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
 const updateMe = async (req, res, next) => {
   try {
-    const { name, email, languages, lesson_info, conditions, description } =
-      req.body;
-
+    const {
+      name,
+      surname,
+      email,
+      languages,
+      lesson_info,
+      conditions,
+      description,
+    } = req.body;
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { name, email, languages, lesson_info, conditions, description },
+      { name, surname, email, languages, lesson_info, conditions, description },
       { new: true, runValidators: true },
     );
-
     res.json({ user });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -59,8 +63,8 @@ const deleteMe = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.user._id);
     res.json({ message: "Account deleted successfully" });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -68,6 +72,7 @@ const updateUser = async (req, res, next) => {
   try {
     const {
       name,
+      surname,
       email,
       role,
       languages,
@@ -77,13 +82,22 @@ const updateUser = async (req, res, next) => {
     } = req.body;
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { name, email, role, languages, lesson_info, conditions, description },
+      {
+        name,
+        surname,
+        email,
+        role,
+        languages,
+        lesson_info,
+        conditions,
+        description,
+      },
       { new: true, runValidators: true },
     );
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ user });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -92,8 +106,8 @@ const deleteUser = async (req, res, next) => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json({ message: "User deleted successfully" });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 

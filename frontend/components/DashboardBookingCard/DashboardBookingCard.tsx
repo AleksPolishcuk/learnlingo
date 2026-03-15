@@ -25,6 +25,10 @@ export default function DashboardBookingCard({ booking, onChange }: Props) {
   const isPending = status === "pending";
   const isConfirmed = status === "confirmed";
 
+  const studentDisplayName = student
+    ? `${student.name} ${student.surname}`.trim()
+    : booking.fullName;
+
   const handleSubmit = async () => {
     if (!action) return;
     setError("");
@@ -75,9 +79,7 @@ export default function DashboardBookingCard({ booking, onChange }: Props) {
     <div className={`${styles.card} ${statusBorderCls}`}>
       <div className={styles.header}>
         <div className={styles.studentInfo}>
-          <div className={styles.studentName}>
-            {student?.name ?? booking.fullName}
-          </div>
+          <div className={styles.studentName}>{studentDisplayName}</div>
           <div className={styles.studentEmail}>
             {student?.email ?? booking.email}
           </div>

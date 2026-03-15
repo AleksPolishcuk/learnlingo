@@ -30,21 +30,31 @@ interface Props {
   existingAd: TeacherAd | null;
   onSaved: (ad: TeacherAd) => void;
   onDeleted?: () => void;
+  onCancel?: () => void;
+  prefillName?: string;
+  prefillSurname?: string;
+  prefillAvatar?: string;
 }
 
 export default function TeacherAdForm({
   existingAd,
   onSaved,
   onDeleted,
+  onCancel,
+  prefillName = "",
+  prefillSurname = "",
+  prefillAvatar = "",
 }: Props) {
-  const [name, setName] = useState(existingAd?.name ?? "");
-  const [surname, setSurname] = useState(existingAd?.surname ?? "");
+  const [name, setName] = useState(existingAd?.name ?? prefillName);
+  const [surname, setSurname] = useState(existingAd?.surname ?? prefillSurname);
   const [languages, setLanguages] = useState<string[]>(
     existingAd?.languages ?? [],
   );
   const [levels, setLevels] = useState<string[]>(existingAd?.levels ?? []);
   const [price, setPrice] = useState(String(existingAd?.price_per_hour ?? ""));
-  const [avatarUrl, setAvatarUrl] = useState(existingAd?.avatar_url ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(
+    existingAd?.avatar_url ?? prefillAvatar,
+  );
   const [lessonInfo, setLessonInfo] = useState(existingAd?.lesson_info ?? "");
   const [conditions, setConditions] = useState<string>(
     Array.isArray(existingAd?.conditions)
@@ -60,7 +70,19 @@ export default function TeacherAdForm({
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    if (!existingAd) return;
+    if (!existingAd) {
+      setName(prefillName);
+      setSurname(prefillSurname);
+      setAvatarUrl(prefillAvatar);
+      setLanguages([]);
+      setLevels([]);
+      setPrice("");
+      setLessonInfo("");
+      setConditions("");
+      setExperience("");
+      setIsActive(true);
+      return;
+    }
     setName(existingAd.name);
     setSurname(existingAd.surname);
     setLanguages(existingAd.languages);
@@ -75,7 +97,7 @@ export default function TeacherAdForm({
     );
     setExperience(existingAd.experience);
     setIsActive(existingAd.isActive);
-  }, [existingAd]);
+  }, [existingAd, prefillName, prefillSurname, prefillAvatar]);
 
   const toggleLang = (l: string) =>
     setLanguages((p) => (p.includes(l) ? p.filter((x) => x !== l) : [...p, l]));
@@ -135,8 +157,7 @@ export default function TeacherAdForm({
 
   const handleDelete = async () => {
     if (!existingAd) return;
-    if (!window.confirm("Delete your teacher ad? This cannot be undone."))
-      return;
+    if (!window.confirm("Delete this ad? This cannot be undone.")) return;
     try {
       setDeleting(true);
       await api.delete(`/teacher-ads/${existingAd._id}`);
@@ -163,7 +184,7 @@ export default function TeacherAdForm({
   return (
     <div className={styles.form}>
       <div className={styles.sectionTitle}>
-        {existingAd ? "Edit Your Teacher Ad" : "Create Your Teacher Ad"}
+        {existingAd ? "Edit Ad" : "Create New Ad"}
       </div>
 
       {error && <div className={styles.errorBox}>{error}</div>}
@@ -173,22 +194,16 @@ export default function TeacherAdForm({
         <AvatarUpload
           currentUrl={avatarUrl}
           name={name || "?"}
-          endpoint={
-            existingAd
-              ? `/upload/ad-avatar/${existingAd._id}`
-              : (undefined as any)
-          }
+          endpoint={existingAd ? `/upload/ad-avatar/${existingAd._id}` : ""}
           onUploaded={handleAdAvatarUploaded}
-          size={88}
+          size={80}
           disabled={!existingAd}
           disabledHint={
             !existingAd ? "Save the ad first to upload a photo" : undefined
           }
         />
         <p className={styles.avatarNote}>
-          {existingAd
-            ? "Click the photo to change it"
-            : "You can add a photo after saving the ad"}
+          {existingAd ? "Click photo to change" : "Add a photo after saving"}
         </p>
       </div>
 
@@ -241,7 +256,7 @@ export default function TeacherAdForm({
       </div>
 
       <div className={styles.fieldFull}>
-        <label className={styles.label}>Levels You Teach *</label>
+        <label className={styles.label}>Levels *</label>
         <div className={styles.pills}>
           {ALL_LEVELS.map((l) => (
             <button
@@ -261,9 +276,9 @@ export default function TeacherAdForm({
         <textarea
           className={styles.textarea}
           value={lessonInfo}
+          rows={3}
           onChange={(e) => setLessonInfo(e.target.value)}
           placeholder="Describe what your lessons cover…"
-          rows={3}
         />
       </div>
 
@@ -274,20 +289,20 @@ export default function TeacherAdForm({
         <textarea
           className={styles.textarea}
           value={conditions}
-          onChange={(e) => setConditions(e.target.value)}
-          placeholder={"Teaches adults only.\nFlexible scheduling available."}
           rows={3}
+          onChange={(e) => setConditions(e.target.value)}
+          placeholder={"Teaches adults only.\nFlexible scheduling."}
         />
       </div>
 
       <div className={styles.fieldFull}>
-        <label className={styles.label}>Your Experience</label>
+        <label className={styles.label}>Experience</label>
         <textarea
           className={styles.textarea}
           value={experience}
-          onChange={(e) => setExperience(e.target.value)}
-          placeholder="Tell students about your background and teaching approach…"
           rows={4}
+          onChange={(e) => setExperience(e.target.value)}
+          placeholder="Tell students about your background…"
         />
       </div>
 
@@ -304,6 +319,11 @@ export default function TeacherAdForm({
       </div>
 
       <div className={styles.actions}>
+        {onCancel && (
+          <button type="button" className={styles.cancelBtn} onClick={onCancel}>
+            ← Back
+          </button>
+        )}
         {existingAd && (
           <button
             type="button"

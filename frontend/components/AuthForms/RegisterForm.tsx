@@ -5,151 +5,133 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { registerSchema } from "@/lib/validation";
 import api from "@/lib/api";
 import { User } from "@/types";
-import Input from "@/components/Input/Input";
 import styles from "./AuthForms.module.css";
-
-const ALL_LANGUAGES = [
-  "English",
-  "French",
-  "German",
-  "Spanish",
-  "Italian",
-  "Mandarin Chinese",
-  "Korean",
-  "Vietnamese",
-  "Japanese",
-];
 
 interface FormData {
   name: string;
+  surname: string;
   email: string;
   password: string;
   role: "client" | "business";
-  languages?: string[];
 }
+
 interface Props {
   onSuccess: (token: string, user: User) => void;
   onSwitch: () => void;
 }
 
 export default function RegisterForm({ onSuccess, onSwitch }: Props) {
-  const [selectedLangs, setSelectedLangs] = useState<string[]>([]);
   const [serverError, setServerError] = useState("");
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: yupResolver(registerSchema) as any,
-    defaultValues: { role: "client", languages: [] },
+    defaultValues: { role: "client" },
   });
-
-  const role = watch("role");
-
-  const toggleLang = (lang: string) => {
-    const next = selectedLangs.includes(lang)
-      ? selectedLangs.filter((l) => l !== lang)
-      : [...selectedLangs, lang];
-    setSelectedLangs(next);
-    setValue("languages", next);
-  };
 
   const onSubmit = async (data: FormData) => {
     try {
       setServerError("");
-      const { data: res } = await api.post("/auth/register", {
-        ...data,
-        languages: selectedLangs,
-      });
+      const { data: res } = await api.post("/auth/register", data);
       onSuccess(res.token, res.user);
     } catch (err: any) {
-      setServerError(err.message);
+      setServerError(err.response?.data?.message || err.message);
     }
   };
 
   return (
-    <div>
+    <div className={styles.wrap}>
       <h2 className={styles.title}>Registration</h2>
       <p className={styles.subtitle}>
-        Thank you for your interest! Please provide the following information.
+        Thank you for your interest in our platform! Please provide the
+        following information to create your account.
       </p>
 
       {serverError && <p className={styles.serverError}>{serverError}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Input
-          {...register("name")}
-          label="Full Name"
-          placeholder="Your name"
-          error={errors.name?.message}
-        />
+        <div className={styles.nameRow}>
+          <div className={styles.field}>
+            <label className={styles.label}>First Name</label>
+            <input
+              {...register("name")}
+              className={styles.input}
+              placeholder="Jane"
+              autoComplete="given-name"
+            />
+            {errors.name && (
+              <p className={styles.fieldError}>{errors.name.message}</p>
+            )}
+          </div>
 
-        <Input
-          {...register("email")}
-          label="Email"
-          type="email"
-          placeholder="your@email.com"
-          error={errors.email?.message}
-        />
-
-        <Input
-          {...register("password")}
-          label="Password"
-          isPassword
-          placeholder="Min 6 characters"
-          error={errors.password?.message}
-        />
-
-        <div className={styles.field}>
-          <label className={styles.label}>Role</label>
-          <div className={styles.roleToggle}>
-            {(["client", "business"] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                className={`${styles.roleBtn} ${role === r ? styles.roleBtnActive : ""}`}
-                onClick={() => {
-                  setValue("role", r);
-                  setSelectedLangs([]);
-                  setValue("languages", []);
-                }}
-              >
-                <svg className={styles.roleIcon} aria-hidden="true">
-                  <use
-                    href={`/sprite.svg#icon-${r === "client" ? "client" : "teacher"}`}
-                  />
-                </svg>
-                {r === "client" ? "Student" : "Teacher"}
-              </button>
-            ))}
+          <div className={styles.field}>
+            <label className={styles.label}>Last Name</label>
+            <input
+              {...register("surname")}
+              className={styles.input}
+              placeholder="Smith"
+              autoComplete="family-name"
+            />
+            {errors.surname && (
+              <p className={styles.fieldError}>{errors.surname.message}</p>
+            )}
           </div>
         </div>
 
-        {role === "business" && (
-          <div className={styles.field}>
-            <label className={styles.label}>Languages You Teach</label>
-            <div className={styles.langPicker}>
-              {ALL_LANGUAGES.map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  className={`${styles.langBtn} ${selectedLangs.includes(lang) ? styles.langBtnActive : ""}`}
-                  onClick={() => toggleLang(lang)}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-            {errors.languages && (
-              <p className={styles.error}>
-                {(errors.languages as any).message}
-              </p>
-            )}
+        <div className={styles.field}>
+          <label className={styles.label}>Email</label>
+          <input
+            {...register("email")}
+            type="email"
+            className={styles.input}
+            placeholder="your@email.com"
+            autoComplete="email"
+          />
+          {errors.email && (
+            <p className={styles.fieldError}>{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>Password</label>
+          <input
+            {...register("password")}
+            type="password"
+            className={styles.input}
+            placeholder="At least 6 characters"
+            autoComplete="new-password"
+          />
+          {errors.password && (
+            <p className={styles.fieldError}>{errors.password.message}</p>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label}>I am a</label>
+          <div className={styles.roleRow}>
+            <label className={styles.roleOption}>
+              <input
+                {...register("role")}
+                type="radio"
+                value="client"
+                className={styles.roleRadio}
+              />
+              <span className={styles.roleLabel}>Student</span>
+            </label>
+            <label className={styles.roleOption}>
+              <input
+                {...register("role")}
+                type="radio"
+                value="business"
+                className={styles.roleRadio}
+              />
+              <span className={styles.roleLabel}>Teacher</span>
+            </label>
           </div>
-        )}
+        </div>
 
         <button
           type="submit"
@@ -162,7 +144,7 @@ export default function RegisterForm({ onSuccess, onSwitch }: Props) {
 
       <p className={styles.switchText}>
         Already have an account?{" "}
-        <button type="button" className={styles.switchBtn} onClick={onSwitch}>
+        <button className={styles.switchBtn} onClick={onSwitch}>
           Log in
         </button>
       </p>

@@ -1,80 +1,84 @@
 import * as yup from "yup";
 
-export const loginSchema = yup.object({
-  email: yup
-    .string()
-    .email("Invalid email address")
-    .required("Email is required"),
-  password: yup
-    .string()
-    .min(6, "Minimum 6 characters")
-    .required("Password is required"),
-});
-
 export const registerSchema = yup.object({
   name: yup
     .string()
-    .min(2, "Minimum 2 characters")
-    .required("Name is required"),
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .required("First name is required"),
+
+  surname: yup
+    .string()
+    .trim()
+    .min(2, "Surname must be at least 2 characters")
+    .required("Last name is required"),
+
   email: yup
     .string()
-    .email("Invalid email address")
+    .trim()
+    .email("Please enter a valid email")
     .required("Email is required"),
+
   password: yup
     .string()
-    .min(6, "Minimum 6 characters")
+    .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
-  role: yup.string().oneOf(["client", "business"]).required("Role is required"),
-  languages: yup
-    .array()
-    .of(yup.string())
-    .when("role", {
-      is: "business",
-      then: (schema) =>
-        schema.min(1, "Select at least one language").required(),
-      otherwise: (schema) => schema.optional(),
-    }),
+
+  role: yup.string().oneOf(["client", "business"]).optional(),
 });
 
-export const bookingSchema = yup.object({
-  reason: yup
-    .string()
-    .oneOf([
-      "Career and business",
-      "Lesson for kids",
-      "Living abroad",
-      "Exams and coursework",
-      "Culture, travel or hobby",
-    ])
-    .required("Please select a reason"),
-  fullName: yup
-    .string()
-    .min(2, "Minimum 2 characters")
-    .required("Full name is required"),
+export const loginSchema = yup.object({
   email: yup
     .string()
-    .email("Invalid email address")
+    .trim()
+    .email("Please enter a valid email")
     .required("Email is required"),
-  phone: yup
-    .string()
-    .matches(
-      /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
-      "Invalid phone number",
-    )
-    .required("Phone number is required"),
+
+  password: yup.string().required("Password is required"),
 });
 
 export const profileSchema = yup.object({
   name: yup
     .string()
-    .min(2, "Minimum 2 characters")
-    .required("Name is required"),
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .required("First name is required"),
+
+  surname: yup
+    .string()
+    .trim()
+    .min(2, "Surname must be at least 2 characters")
+    .required("Last name is required"),
+
   email: yup
     .string()
-    .email("Invalid email address")
+    .trim()
+    .email("Please enter a valid email")
     .required("Email is required"),
-  languages: yup.array().of(yup.string()).optional(),
+
   lesson_info: yup.string().optional(),
   conditions: yup.string().optional(),
   description: yup.string().optional(),
+});
+
+export const bookingSchema = yup.object({
+  fullName: yup
+    .string()
+    .trim()
+    .min(2, "Please enter your full name")
+    .required("Full name is required"),
+
+  email: yup
+    .string()
+    .trim()
+    .email("Please enter a valid email")
+    .required("Email is required"),
+
+  phone: yup
+    .string()
+    .trim()
+    .min(6, "Please enter a valid phone number")
+    .required("Phone number is required"),
+
+  reason: yup.string().required("Please select a reason"),
 });

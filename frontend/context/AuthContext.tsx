@@ -73,8 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api
       .get("/favorites")
       .then(({ data }) => {
-        const ids = (data.favorites ?? []).map((t: any) => String(t._id));
-        setFavorites(ids);
+        setFavorites((data.favorites ?? []).map((t: any) => String(t._id)));
       })
       .catch(() => setFavorites([]));
   }, [user?._id]);
@@ -92,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(tok);
       setUser(usr);
       setAuthModal(null);
-      showToast(`Welcome back, ${usr.name}!`);
+      showToast(`Welcome back, ${usr.name} ${usr.surname}!`);
     },
     [showToast],
   );
@@ -117,19 +116,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const toggleFavorite = useCallback(
     async (teacherId: string, kind: "Teacher" | "TeacherAd" = "Teacher") => {
       if (!user) return;
-
       const isFav = favorites.includes(teacherId);
-
       setFavorites((prev) =>
         isFav ? prev.filter((id) => id !== teacherId) : [...prev, teacherId],
       );
-
       try {
-        if (isFav) {
-          await api.delete(`/favorites/${teacherId}`);
-        } else {
-          await api.post(`/favorites/${teacherId}`, { kind });
-        }
+        if (isFav) await api.delete(`/favorites/${teacherId}`);
+        else await api.post(`/favorites/${teacherId}`, { kind });
       } catch {
         setFavorites((prev) =>
           isFav ? [...prev, teacherId] : prev.filter((id) => id !== teacherId),

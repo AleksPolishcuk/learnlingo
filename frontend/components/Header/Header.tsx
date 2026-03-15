@@ -12,7 +12,8 @@ import styles from "./Header.module.css";
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuth, logout, openLogin, openRegister } = useAuthContext();
+  const { user, logout, updateUser, openLogin, openRegister } =
+    useAuthContext();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,12 +21,10 @@ export default function Header() {
 
   const isBusiness = user?.role === "business";
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node))
         setMenuOpen(false);
-      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -53,19 +52,22 @@ export default function Header() {
     setMenuOpen(false);
     router.push("/");
   };
+  const handleDelete = () => {
+    logout();
+    setProfileOpen(false);
+    router.push("/");
+  };
 
   return (
     <>
       <nav className={styles.navbar}>
         <div className={styles.container}>
-          {/* ── Logo ──────────────────────────────────────────────────── */}
           <Link href="/" className={styles.logo} aria-label="LearnLingo">
             <svg className={styles.logoIcon} aria-hidden="true">
               <use href="/sprite.svg#icon-Logo" />
             </svg>
           </Link>
 
-          {/* ── Nav links ─────────────────────────────────────────────── */}
           <div className={styles.nav}>
             {allLinks.map(({ href, label }) => (
               <Link
@@ -78,7 +80,6 @@ export default function Header() {
             ))}
           </div>
 
-          {/* ── Right-side actions ────────────────────────────────────── */}
           <div className={styles.actions}>
             {!user ? (
               <>
@@ -95,10 +96,8 @@ export default function Header() {
             ) : (
               <div ref={menuRef} className={styles.userMenu}>
                 <div className={styles.userActions}>
-                  {/* Notification bell — sits before the avatar */}
                   <NotificationBell />
 
-                  {/* Avatar opens the dropdown */}
                   <button
                     style={{
                       border: "none",
@@ -112,7 +111,6 @@ export default function Header() {
                     <UserAvatar user={user} size={42} />
                   </button>
 
-                  {/* Logout button */}
                   <button className={styles.btnLogout} onClick={handleLogout}>
                     <svg className={styles.iconLogIn} aria-hidden="true">
                       <use href="/sprite.svg#icon-log-in-01" />
@@ -121,17 +119,17 @@ export default function Header() {
                   </button>
                 </div>
 
-                {/* ── Dropdown menu ──────────────────────────────────── */}
                 {menuOpen && (
                   <div className={styles.dropdown}>
                     <div className={styles.dropdownHeader}>
-                      <div className={styles.dropdownName}>{user.name}</div>
+                      <div className={styles.dropdownName}>
+                        {user.name} {user.surname}
+                      </div>
                       <div className={styles.dropdownRole}>
                         {isBusiness ? "Teacher" : "Student"}
                       </div>
                     </div>
 
-                    {/* Profile / Ads */}
                     <button
                       className={styles.dropdownItem}
                       onClick={() => {
@@ -144,34 +142,6 @@ export default function Header() {
                       </svg>
                       {isBusiness ? "Profile & Ads" : "Edit Profile"}
                     </button>
-
-                    {/* Business-only: Dashboard */}
-                    {isBusiness && (
-                      <Link
-                        href="/dashboard"
-                        className={styles.dropdownItem}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <svg className={styles.iconEdit} aria-hidden="true">
-                          <use href="/sprite.svg#icon-calendar" />
-                        </svg>
-                        Lesson Dashboard
-                      </Link>
-                    )}
-
-                    {/* Student-only: Reservations */}
-                    {!isBusiness && (
-                      <Link
-                        href="/reservations"
-                        className={styles.dropdownItem}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <svg className={styles.iconEdit} aria-hidden="true">
-                          <use href="/sprite.svg#icon-calendar" />
-                        </svg>
-                        My Reservations
-                      </Link>
-                    )}
                   </div>
                 )}
               </div>
@@ -180,10 +150,14 @@ export default function Header() {
         </div>
       </nav>
 
-      {/* Profile modal */}
       <Modal open={profileOpen} onClose={() => setProfileOpen(false)} wide>
         {user && (
-          <ProfileModal user={user} onClose={() => setProfileOpen(false)} />
+          <ProfileModal
+            user={user}
+            onClose={() => setProfileOpen(false)}
+            onUpdate={updateUser}
+            onDelete={handleDelete}
+          />
         )}
       </Modal>
     </>

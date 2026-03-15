@@ -51,9 +51,14 @@ export type AnyTeacher = Teacher | TeacherAd;
 export interface User {
   _id: string;
   name: string;
+  surname: string;
   email: string;
   role: "client" | "business";
   avatar_url: string;
+  languages: string[];
+  lesson_info: string;
+  conditions: string;
+  description: string;
   favorites: string[];
   createdAt: string;
 }
