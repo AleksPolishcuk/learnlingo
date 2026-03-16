@@ -1,0 +1,514 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border-radius: 99px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.exportBtn:hover {
+  border-color: var(--accent);
+  background: var(--gold-light);
+  color: #7a5800;
+}
+.exportIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.statsBar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.statCard {
+  flex: 1;
+  min-width: 90px;
+  padding: 14px 16px;
+  border-radius: var(--radius-xl);
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.statCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.statNum {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--text);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legendCard {
+  flex: 2;
+  min-width: 180px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.legendDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dotPending {
+  background: #f59e0b;
+}
+.dotConfirmed {
+  background: #22c55e;
+}
+.dotCompleted {
+  background: #60a5fa;
+}
+
+.legendLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 10px;
+}
+
+
+.mainLayout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.calendarWrap {
+  flex: 1;
+  min-width: 0;
+  height: 680px;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-yellow);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  overflow: hidden;
+}
+
+.calLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+
+.calendarWrap :global(.rbc-calendar) {
+  height: 100%;
+  font-family: var(--font-body);
+  color: var(--text);
+}
+
+.calendarWrap :global(.rbc-header) {
+  padding: 9px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom-color: var(--border);
+}
+
+.calendarWrap :global(.rbc-today) {
+  background: var(--gold-light);
+}
+
+.calendarWrap :global(.rbc-off-range-bg) {
+  background: #fafafa;
+}
+
+.calendarWrap :global(.rbc-toolbar) {
+  margin-bottom: 14px;
+  gap: 8px;
+}
+
+.calendarWrap :global(.rbc-btn-group button) {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-color: var(--border);
+  border-radius: 99px;
+  padding: 6px 16px;
+  transition: all 0.15s;
+  background: transparent;
+}
+.calendarWrap :global(.rbc-btn-group button:hover) {
+  border-color: var(--accent);
+  background: var(--gold-light);
+  color: #7a5800;
+}
+.calendarWrap :global(.rbc-btn-group button.rbc-active),
+.calendarWrap :global(.rbc-btn-group button.rbc-active:hover) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: var(--shadow-accent);
+}
+
+.calendarWrap :global(.rbc-toolbar-label) {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.calendarWrap :global(.rbc-event) {
+  border: none !important;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
+}
+.calendarWrap :global(.rbc-event:hover) {
+  opacity: 0.85;
+  transform: scale(1.01);
+}
+.calendarWrap :global(.rbc-event.rbc-selected) {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+.calendarWrap :global(.rbc-event-label) {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+.calendarWrap :global(.rbc-show-more) {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7a5800;
+}
+
+.calendarWrap :global(.rbc-time-slot) {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.calendarWrap :global(.rbc-current-time-indicator) {
+  background: var(--accent);
+  height: 2px;
+}
+
+.calendarWrap :global(.rbc-time-content),
+.calendarWrap :global(.rbc-time-header-content) {
+  border-color: var(--border);
+}
+.calendarWrap :global(.rbc-day-slot .rbc-time-slot) {
+  border-color: #f3f4f6;
+}
+
+
+:global(.rbc-event).evPending {
+  background: #f59e0b;
+  color: #fff;
+}
+:global(.rbc-event).evConfirmed {
+  background: #22c55e;
+  color: #fff;
+}
+:global(.rbc-event).evCompleted {
+  background: #60a5fa;
+  color: #fff;
+}
+
+.eventCell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+.eventIcon {
+  font-size: 11px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.eventTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+
+.panel {
+  width: 320px;
+  flex-shrink: 0;
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  padding: 24px 20px 20px;
+  position: relative;
+  animation: slideIn 0.2s ease both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panelClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.panelClose:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.detailWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-right: 28px;
+}
+
+.detailName {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.statusBadge {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  flex-shrink: 0;
+}
+.badgePending {
+  background: #fff8e1;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+.badgeConfirmed {
+  background: #eafaf1;
+  color: #1a7a3a;
+  border: 1px solid #6ee7b7;
+}
+.badgeCompleted {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+.badgeCancelled {
+  background: var(--red-light);
+  color: var(--red);
+  border: 1px solid #fca5a5;
+}
+
+.detailRows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.detailRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.detailKey {
+  color: var(--text-muted);
+  font-weight: 600;
+  min-width: 72px;
+  flex-shrink: 0;
+}
+
+.detailVal {
+  color: var(--text);
+  word-break: break-word;
+}
+.earnedVal {
+  color: #16a34a;
+  font-weight: 800;
+}
+
+.detailActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnConfirm {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: #22c55e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btnConfirm:hover {
+  background: #16a34a;
+}
+
+.btnComplete {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: #60a5fa;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btnComplete:hover {
+  background: #3b82f6;
+}
+
+.btnCancel {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid #fca5a5;
+  background: var(--red-light);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btnCancel:hover {
+  background: #ffd7d7;
+}
+
+@media (max-width: 1024px) {
+  .mainLayout {
+    flex-direction: column;
+  }
+  .panel {
+    width: 100%;
+    animation: none;
+  }
+  .calendarWrap {
+    height: 560px;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 24px 16px;
+  }
+  .calendarWrap {
+    height: 480px;
+    padding: 10px;
+  }
+  .statsBar {
+    gap: 8px;
+  }
+  .statCard {
+    min-width: 70px;
+    padding: 10px 12px;
+  }
+  .legendCard {
+    display: none;
+  }
+}

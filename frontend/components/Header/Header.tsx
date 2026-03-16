@@ -39,6 +39,7 @@ export default function Header() {
       ? [
           { href: "/", label: "Home" },
           { href: "/dashboard", label: "Dashboard" },
+          { href: "/calendar", label: "Calendar" },
         ]
       : [
           { href: "/", label: "Home" },

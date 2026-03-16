@@ -11,6 +11,7 @@ const favoriteRoutes = require("./routes/favorite.routes");
 const bookingRoutes = require("./routes/booking.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const uploadRoutes = require("./routes/upload.routes");
+const availabilityRoutes = require("./routes/calendar.routes");
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/favorites", favoriteRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/availability", availabilityRoutes);
 
 app.use((req, res) =>
   res.status(404).json({ message: `Route ${req.originalUrl} not found` }),

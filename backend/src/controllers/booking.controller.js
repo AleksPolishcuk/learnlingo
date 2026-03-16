@@ -40,7 +40,7 @@ const getBookings = async (req, res, next) => {
 
     if (req.user.role === "business") {
       bookings = await Booking.find({ teacherUser: req.user._id })
-        .populate("user", "name email")
+        .populate("user", "name surname email")
         .populate(
           "teacherAd",
           "name surname avatar_url languages price_per_hour",
@@ -239,7 +239,7 @@ const confirmBooking = async (req, res, next) => {
       _id: req.params.id,
       teacherUser: req.user._id,
     })
-      .populate("user", "name email")
+      .populate("user", "name surname email")
       .populate("teacherAd", "name surname price_per_hour");
 
     if (!booking) return res.status(404).json({ message: "Booking not found" });
@@ -267,7 +267,7 @@ const confirmBooking = async (req, res, next) => {
     });
 
     const populated = await Booking.findById(booking._id)
-      .populate("user", "name email")
+      .populate("user", "name surname email")
       .populate(
         "teacherAd",
         "name surname avatar_url languages price_per_hour",
@@ -291,7 +291,7 @@ const cancelBookingByTeacher = async (req, res, next) => {
       _id: req.params.id,
       teacherUser: req.user._id,
     })
-      .populate("user", "name email")
+      .populate("user", "name surname email")
       .populate("teacherAd", "name surname");
 
     if (!booking) return res.status(404).json({ message: "Booking not found" });
@@ -323,7 +323,7 @@ const cancelBookingByTeacher = async (req, res, next) => {
     });
 
     const populated = await Booking.findById(booking._id)
-      .populate("user", "name email")
+      .populate("user", "name surname email")
       .populate(
         "teacherAd",
         "name surname avatar_url languages price_per_hour",
@@ -347,7 +347,7 @@ const completeBooking = async (req, res, next) => {
       _id: req.params.id,
       teacherUser: req.user._id,
     })
-      .populate("user", "name email")
+      .populate("user", "name surname email")
       .populate(
         "teacherAd",
         "name surname price_per_hour lessons_done total_earned",
@@ -385,7 +385,7 @@ const completeBooking = async (req, res, next) => {
     });
 
     const populated = await Booking.findById(booking._id)
-      .populate("user", "name email")
+      .populate("user", "name surname email")
       .populate(
         "teacherAd",
         "name surname avatar_url languages price_per_hour",
@@ -415,7 +415,7 @@ const leaveReview = async (req, res, next) => {
       user: req.user._id,
     })
       .populate("teacherAd")
-      .populate("user", "name");
+      .populate("user", "name surname");
 
     if (!booking) return res.status(404).json({ message: "Booking not found" });
     if (booking.teacherStatus !== "completed") {
