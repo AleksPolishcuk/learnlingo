@@ -13,14 +13,21 @@ export function useRoleGuard(
   useEffect(() => {
     if (loading) return;
 
+    // Якщо allowedRoles === null, значить сторінка публічна - не робимо редірект
+    if (allowedRoles === null) {
+      return;
+    }
+
+    // Якщо користувач не авторизований, а сторінка потребує авторизації
     if (!isAuth) {
       router.replace(redirectTo);
       return;
     }
 
-    if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    // Якщо користувач авторизований, але має неправильну роль
+    if (user && !allowedRoles.includes(user.role)) {
       const fallback = user.role === "business" ? "/" : "/teachers";
       router.replace(fallback);
     }
-  }, [loading, isAuth, user?.role]); // eslint-disable-line
+  }, [loading, isAuth, user, allowedRoles, redirectTo, router]);
 }

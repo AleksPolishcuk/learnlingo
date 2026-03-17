@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Teacher, TeacherFilters, AnyTeacher } from "@/types";
 import { useAuthContext } from "@/context/AuthContext";
@@ -22,8 +23,7 @@ const DEFAULT_FILTERS: TeacherFilters = {
 };
 
 export default function TeachersPage() {
-  // Accessible to guests and students only — teachers are redirected to "/"
-  useRoleGuard(["client"], "/");
+  useRoleGuard(null, "/");
 
   const { isAuth, user, favorites, toggleFavorite, openAuthWarn, showToast } =
     useAuthContext();
@@ -186,7 +186,6 @@ export default function TeachersPage() {
     setBookingTeacher({ teacher, isAd: !!(teacher as any)._isAd });
   };
 
-  // Hide content while role guard redirect is processing
   if (user?.role === "business") return null;
 
   return (
