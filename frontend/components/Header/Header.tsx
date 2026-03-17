@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
@@ -7,6 +8,7 @@ import Modal from "@/components/Modal/Modal";
 import ProfileModal from "@/components/ProfileModal/ProfileModal";
 import NotificationBell from "@/components/NotificationBell/NotificationBell";
 import UserAvatar from "@/components/UserAvatar/UserAvatar";
+import BurgerMenu from "@/components/BurgerMenu/BurgerMenu";
 import styles from "./Header.module.css";
 
 export default function Header() {
@@ -17,15 +19,18 @@ export default function Header() {
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [burgerOpen, setBurgerOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isBusiness = user?.role === "business";
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node))
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
+      }
     };
+
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
@@ -51,12 +56,22 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     setMenuOpen(false);
+    setBurgerOpen(false);
     router.push("/");
   };
+
   const handleDelete = () => {
     logout();
     setProfileOpen(false);
     router.push("/");
+  };
+
+  const handleBurgerToggle = () => {
+    setBurgerOpen((prev) => !prev);
+  };
+
+  const handleBurgerClose = () => {
+    setBurgerOpen(false);
   };
 
   return (
@@ -69,7 +84,7 @@ export default function Header() {
             </svg>
           </Link>
 
-          <div className={styles.nav}>
+          <div className={styles.navDesktop}>
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
@@ -81,7 +96,7 @@ export default function Header() {
             ))}
           </div>
 
-          <div className={styles.actions}>
+          <div className={styles.actionsDesktop}>
             {!user ? (
               <>
                 <button className={styles.btnLogin} onClick={openLogin}>
@@ -106,7 +121,7 @@ export default function Header() {
                       padding: 0,
                       cursor: "pointer",
                     }}
-                    onClick={() => setMenuOpen((p) => !p)}
+                    onClick={() => setMenuOpen((prev) => !prev)}
                     aria-label="Account menu"
                   >
                     <UserAvatar user={user} size={42} />
@@ -148,8 +163,44 @@ export default function Header() {
               </div>
             )}
           </div>
+
+          <div className={styles.actionsMobile}>
+            {user && (
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                style={{ border: "none", background: "none", padding: 0 }}
+                aria-label="Account menu"
+              >
+                <UserAvatar user={user} size={36} />
+              </button>
+            )}
+            <button
+              className={`${styles.burgerBtn} ${
+                burgerOpen ? styles.active : ""
+              }`}
+              onClick={handleBurgerToggle}
+              aria-label="Menu"
+              aria-expanded={burgerOpen}
+            >
+              <span className={styles.burgerLine} />
+              <span className={styles.burgerLine} />
+              <span className={styles.burgerLine} />
+            </button>
+          </div>
         </div>
       </nav>
+
+      <BurgerMenu
+        isOpen={burgerOpen}
+        onClose={handleBurgerClose}
+        user={user}
+        navLinks={navLinks}
+        onLogin={openLogin}
+        onRegister={openRegister}
+        onLogout={handleLogout}
+        onProfile={() => setProfileOpen(true)}
+        isBusiness={isBusiness}
+      />
 
       <Modal open={profileOpen} onClose={() => setProfileOpen(false)} wide>
         {user && (

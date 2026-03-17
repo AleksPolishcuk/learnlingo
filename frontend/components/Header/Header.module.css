@@ -1,18 +1,23 @@
 .navbar {
   position: relative;
-  padding: 20px 0 20px 0;
+  /* top: 0;
+  z-index: 100; */
   background: #fff;
+  box-shadow: var(--shadow-sm);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
 }
 
 .container {
+  width: 100%;
   max-width: 1184px;
-  height: 48px;
   margin: 0 auto;
-  padding: 0;
-
+  padding: 0 var(--container-padding);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 100%;
 }
 
 .logo {
@@ -20,28 +25,34 @@
   align-items: center;
   text-decoration: none;
   cursor: pointer;
+  z-index: 110;
 }
 
 .logoIcon {
-  width: 134px;
+  width: 120px;
   height: 28px;
   display: block;
   flex-shrink: 0;
 }
 
-.logoText {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-  color: #111;
+@media (min-width: 768px) {
+  .logoIcon {
+    width: 134px;
+  }
 }
 
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
-  flex: 1;
+.navDesktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .navDesktop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    flex: 1;
+  }
 }
 
 .navLink {
@@ -49,17 +60,20 @@
   font-weight: 500;
   color: #111;
   text-decoration: none;
-
   padding: 6px 0;
   position: relative;
-}
-
-.navLink:hover {
-  opacity: 0.85;
+  transition: opacity 0.15s;
 }
 
 .navLinkActive {
   font-weight: 600;
+  font-size: 15px;
+}
+
+.navLink:hover {
+  color: var(--accent-dark);
+  padding-bottom: 8px;
+  opacity: 0.85;
 }
 
 .navLinkActive::after {
@@ -67,18 +81,83 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -10px;
+  bottom: -4px;
   height: 2px;
-  background: rgba(17, 17, 17, 0.7);
+  background: var(--accent);
   border-radius: 2px;
 }
 
-.actions {
+.actionsDesktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .actionsDesktop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+}
+
+.actionsMobile {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-  margin-left: 16px;
+  gap: 8px;
+  z-index: 110;
+}
+
+@media (min-width: 768px) {
+  .actionsMobile {
+    display: none;
+  }
+}
+
+.burgerBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+  z-index: 110;
+}
+
+.burgerBtn:hover {
+  border-color: var(--accent);
+  background: var(--gold-light);
+}
+
+.burgerBtn.active {
+  border-color: var(--accent);
+  background: var(--gold-light);
+}
+
+.burgerLine {
+  width: 20px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.burgerBtn.active .burgerLine:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.burgerBtn.active .burgerLine:nth-child(2) {
+  opacity: 0;
+}
+
+.burgerBtn.active .burgerLine:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
 }
 
 .iconLogIn {
@@ -86,19 +165,23 @@
   height: 20px;
 }
 
+.iconEdit {
+  width: 16px;
+  height: 16px;
+}
+
 .btnLogin {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-
   padding: 8px 10px;
   border: 0;
   background: transparent;
-
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text);
   cursor: pointer;
+  transition: opacity 0.15s;
 }
 
 .btnLogin:hover {
@@ -106,11 +189,11 @@
 }
 
 .btnLogin svg {
-  color: #f4c550;
+  color: var(--accent);
 }
 
 .btnRegister {
-  padding: 14px 38px;
+  padding: 12px 28px;
   border: 0;
   border-radius: 12px;
   background: var(--text);
@@ -118,6 +201,7 @@
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+  transition: opacity 0.15s;
 }
 
 .btnRegister:hover {
@@ -138,18 +222,16 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   height: 40px;
   padding: 0 14px;
-
   border-radius: 12px;
   border: 1px solid rgba(17, 17, 17, 0.14);
   background: transparent;
-
   color: rgba(17, 17, 17, 0.7);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s;
 }
 
 .btnLogout:hover {
@@ -161,12 +243,10 @@
   position: absolute;
   right: 0;
   top: calc(100% + 10px);
-
   background: var(--card-bg);
   border-radius: 14px;
   border: 1px solid rgba(17, 17, 17, 0.14);
   box-shadow: 0 16px 40px rgba(17, 17, 17, 0.12);
-
   min-width: 210px;
   overflow: hidden;
   z-index: 600;
@@ -197,20 +277,12 @@
   border: 0;
   background: transparent;
   text-align: left;
-
   font-size: 14px;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   gap: 8px;
-
   color: rgba(17, 17, 17, 0.8);
-}
-
-.iconEdit {
-  width: 16px;
-  height: 16px;
 }
 
 .dropdownItem:hover {
@@ -226,20 +298,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    height: 56px;
-  }
-
-  .nav {
-    display: none;
-  }
-
-  .btnRegister {
-    height: 38px;
-    padding: 0 16px;
   }
 }
