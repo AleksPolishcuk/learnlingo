@@ -1,16 +1,16 @@
 .filterBar {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 36px;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
 .filterGroup {
-  display: flex;
+  display: grid;
   flex-direction: column;
   gap: 6px;
-  min-width: 180px;
+  width: 100%;
 }
 
 .label {
@@ -23,11 +23,12 @@
 
 .wrapper {
   position: relative;
+  width: 100%;
 }
 
 .trigger {
   width: 100%;
-  padding: 11px 40px 11px 16px;
+  padding: 12px 40px 12px 14px;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border);
   background: var(--card-bg);
@@ -37,11 +38,16 @@
   font-size: 14px;
   font-family: var(--font-body);
   color: var(--text);
-  font-weight: 600;
+  font-weight: 500;
   box-shadow: var(--shadow-sm);
   transition: border-color 0.15s;
   cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 .trigger:hover {
   border-color: var(--border-hover);
 }
@@ -52,23 +58,25 @@
 }
 
 .chevron {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   position: absolute;
-  right: 14px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
   transition: transform 0.2s;
   color: #aaa;
+  flex-shrink: 0;
 }
+
 .chevronOpen {
   transform: translateY(-50%) rotate(180deg);
 }
 
 .dropdown {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: var(--card-bg);
@@ -80,29 +88,11 @@
   max-height: 260px;
   overflow-y: auto;
   animation: fadeIn 0.15s ease both;
-  min-width: 180px;
-}
-
-.option {
-  padding: 10px 16px;
-  font-size: 14px;
-  font-family: var(--font-body);
-  color: var(--text);
-  cursor: pointer;
-  transition: background 0.12s;
-  font-weight: 400;
-}
-.option:hover {
-  background: #f9f9f9;
-}
-.optionActive {
-  background: var(--gold-light);
-  color: #7a5800;
-  font-weight: 700;
+  min-width: 200px;
 }
 
 .optionAll {
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-size: 14px;
   font-family: var(--font-body);
   color: var(--text-muted);
@@ -110,16 +100,39 @@
   cursor: pointer;
   border-bottom: 1px solid var(--border);
   transition: background 0.12s;
+  font-weight: 500;
 }
+
 .optionAll:hover {
   background: #f0f0f0;
+}
+
+.option {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s;
+  font-weight: 400;
+}
+
+.option:hover {
+  background: #f9f9f9;
+}
+
+.optionActive {
+  background: var(--gold-light);
+  color: #7a5800;
+  font-weight: 700;
 }
 
 .resetBtn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 11px 18px;
+  padding: 12px 18px;
   border-radius: var(--radius-md);
   border: 1.5px solid var(--border);
   background: transparent;
@@ -128,12 +141,12 @@
   font-weight: 700;
   font-family: var(--font-body);
   cursor: pointer;
-  transition:
-    background 0.15s,
-    border-color 0.15s,
-    color 0.15s;
+  transition: all 0.15s;
   white-space: nowrap;
+  width: 100%;
+  margin-top: 4px;
 }
+
 .resetBtn:hover {
   background: var(--red-light);
   border-color: #fca5a5;
@@ -145,4 +158,52 @@
   height: 14px;
   stroke: currentColor;
   fill: none;
+}
+
+@media (min-width: 375px) {
+  .filterBar {
+    gap: 14px;
+  }
+
+  .trigger {
+    padding: 12px 44px 12px 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .filterBar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 32px;
+  }
+
+  .filterGroup {
+    min-width: 160px;
+    flex: 1;
+  }
+
+  .resetBtn {
+    width: auto;
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1440px) {
+  .filterBar {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    max-width: 900px;
+    margin: 40px auto 40px auto;
+  }
+
+  .filterGroup {
+    min-width: 180px;
+  }
+
+  .trigger {
+    padding: 11px 44px 11px 16px;
+  }
 }

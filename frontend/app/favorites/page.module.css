@@ -28,6 +28,10 @@
   margin-bottom: 16px;
 }
 
+.title {
+  margin-bottom: 18px;
+}
+
 .emptyTitle {
   font-size: 18px;
   font-weight: 700;

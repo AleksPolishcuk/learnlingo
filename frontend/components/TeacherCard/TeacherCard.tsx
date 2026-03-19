@@ -78,11 +78,12 @@ export default function TeacherCard({
         <div className={styles.content}>
           <div className={styles.topRow}>
             <div className={styles.titleGroup}>
-              <div className={styles.categoryLabel}>Languages</div>
+              <div className={styles.categoryLabel}>Teacher</div>
               <h3 className={styles.name}>
                 {teacher.name} {teacher.surname}
               </h3>
             </div>
+
             <div className={styles.metaRow}>
               <div className={styles.metaGroup}>
                 <span className={styles.metaItem}>
@@ -145,25 +146,16 @@ export default function TeacherCard({
 
           {!expanded && (
             <button
+              type="button"
               className={styles.readMore}
-              onClick={() => setExpanded(true)}
+              onClick={() => setExpanded((s) => !s)}
             >
-              Read more
+              {expanded ? "Show less" : "Read more"}
             </button>
           )}
 
           {expanded && (
             <div className={styles.expandedSection}>
-              {experience ? (
-                <p className={styles.experience}>{experience}</p>
-              ) : (
-                <p
-                  className={styles.experience}
-                  style={{ color: "var(--text-muted)", fontStyle: "italic" }}
-                >
-                  No experience description provided yet.
-                </p>
-              )}
 
               {reviews.length > 0 ? (
                 <div className={styles.reviews}>
