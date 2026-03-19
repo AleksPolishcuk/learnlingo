@@ -6,6 +6,7 @@ import { registerSchema } from "@/lib/validation";
 import api from "@/lib/api";
 import { User } from "@/types";
 import styles from "./AuthForms.module.css";
+import Input from "../Input/Input";
 
 interface FormData {
   name: string;
@@ -81,33 +82,21 @@ export default function RegisterForm({ onSuccess, onSwitch }: Props) {
           </div>
         </div>
 
-        <div className={styles.field}>
-          <label className={styles.label}>Email</label>
-          <input
-            {...register("email")}
-            type="email"
-            className={styles.input}
-            placeholder="your@email.com"
-            autoComplete="email"
-          />
-          {errors.email && (
-            <p className={styles.fieldError}>{errors.email.message}</p>
-          )}
-        </div>
+        <Input
+          {...register("email")}
+          label="Email"
+          type="email"
+          placeholder="your@email.com"
+          error={errors.email?.message}
+        />
 
-        <div className={styles.field}>
-          <label className={styles.label}>Password</label>
-          <input
-            {...register("password")}
-            type="password"
-            className={styles.input}
-            placeholder="At least 6 characters"
-            autoComplete="new-password"
-          />
-          {errors.password && (
-            <p className={styles.fieldError}>{errors.password.message}</p>
-          )}
-        </div>
+        <Input
+          {...register("password")}
+          label="Password"
+          isPassword
+          placeholder="Password"
+          error={errors.password?.message}
+        />
 
         <div className={styles.field}>
           <label className={styles.label}>I am a</label>
